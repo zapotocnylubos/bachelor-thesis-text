@@ -160,35 +160,36 @@ Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien. Duis 
 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Nulla non arcu lacinia neque faucibus fringilla. Vestibulum erat nulla, ullamcorper nec, rutrum non, nonummy ac, erat. Aliquam erat volutpat. Proin pede metus, vulputate nec, fermentum fringilla, vehicula vitae, justo.\footnote{Ut enim ad minim veniam, quis nostrud exercitation.} Etiam dictum tincidunt diam. In laoreet, magna id viverra tincidunt, sem odio bibendum justo, vel imperdiet sapien wisi sed libero. Nulla est. Maecenas fermentum, sem in pharetra pellentesque, velit turpis volutpat ante, in pharetra metus odio a lectus. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
 
-\begin{lstlisting}[caption={~Zbytečný kód},label=list:8-6,captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-    #include<stdio.h>
-    #include<iostream>
-    // A comment
-    int main(void)
-    {
-        printf("Hello World\n");
-        return 0;
-    }
-\end{lstlisting}
+%\begin{lstlisting}[caption={~Zbytečný kód},label=list:8-6,captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+%    #include<stdio.h>
+%    #include<iostream>
+%    // A comment
+%    int main(void)
+%    {
+%        printf("Hello World\n");
+%        return 0;
+%    }
+%\end{lstlisting}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % alternative using package minted for source highlighting
 % package minted requires execution with `-shell-escape'
 % e.g., `xelatex -shell-escape ctufit-thesis.tex'
-% \begin{listing}
-% \caption{Zbytečný kód}\label{list:8-6}
-% \begin{minted}{C}
-%     #include<stdio.h>
-%     #include<iostream>
-%     // A comment
-%     int main(void)
-%     {
-%         printf("Hello World\n");
-%         return 0;
-%     }
-% \end{minted}
-% \end{listing}
+ \begin{listing}
+ \caption{Zbytečný kód}\label{list:8-6}
+ \begin{minted}{C}
+     #include<stdio.h>
+     #include<iostream>
+     // A comment
+     int main(void)
+     {
+         printf("Hello World\n");
+         return 0;
+     }
+ \end{minted}
+ \end{listing}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 Nullam feugiat, turpis at pulvinar vulputate, erat libero tristique tellus, nec bibendum odio risus sit amet ante. Aenean id metus id velit ullamcorper pulvinar. Fusce wisi. Integer lacinia. Aliquam id dolor. Pellentesque pretium lectus id turpis. Suspendisse sagittis ultrices augue. In laoreet, magna id viverra tincidunt, sem odio bibendum justo, vel imperdiet sapien wisi sed libero. Sed ac dolor sit amet purus malesuada congue. \cite{Crochemore2002}
 
 Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Fusce suscipit libero eget elit. Etiam dui sem, fermentum vitae, sagittis id, malesuada in, quam. Aliquam id dolor. Curabitur bibendum justo non orci. Duis viverra diam non justo. Curabitur ligula sapien, pulvinar a vestibulum quis, facilisis vel sapien. Duis condimentum augue id magna semper rutrum. Aliquam ornare wisi eu metus. Fusce aliquam vestibulum ipsum. Vivamus ac leo pretium faucibus. \cite{Motwani2014}
@@ -265,7 +266,43 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis. \cite{Kopka2004}
 
-\section{Donec odio tempus molestie}
+\section{Problematika důkazů při práci s referenčními datovými typy}
+
+V průběhu tvorby autor práce předával datovou strukturu mezi jednotlivými funkcemi pomocí odkazu na paměť. Princip předávání celé datové struktury pomocí odkazu umožňuje minimalizovat počet proměnných na zásobníku a všechny hodnoty ukládá v dynamické části paměti.
+
+Datová struktura reprezentující haldu se sestává z ukazatele na začátek pole, ve kterém jsou prvky haldy uložené, celočíselné hodnoty reprezentující aktuální počet uložených prvků v haldě a maximální kapacitu alokované paměti pole.
+
+Pokud je tato struktura předaná do některé obslužné funkce, která by s některými hodnotami pracovala, Frama-C a její WP plugin nemůže zajistit, že se v průběhu provádění dané funkce hodnoty nebudou měnit. Jelikož k hodnotám uloženým v haldě přistupujeme pomocí dereference ukazatele, může se teoreticky kdykoli stát, že hodnoty v paměti, kam daný ukazatel ukazuje již nejsou aktuální. Příkladem můžou být například vícevláknové aplikace.
+
+\section{Důkaz korektnosti algoritmu opravení haldy probubláním nahoru}
+
+Probublání prvku nahoru potřeba provést, pokud se v některý moment objeví v haldě prvek, který nesplňuje vlastnosti haldy a hodnota v daném vrcholu je menší, než hodnota v jeho rodiči. Tento stav nastává při vkládání prvku do haldy, kde se nový prvek přidá jako poslední prvek v téměř úplném binárním stromě a provede se probublání nahoru, aby se daný prvek dostal do správného místa v haldě tak, aby byla zajištěna vlastnost haldy pro všechny vrcholy rodičů a jejich synů.
+
+\subsection{Řez haldou}
+
+Pro důkaz autor využil řez haldou, který rozděluje graf haldy dle vlastnosti haldy (hodnota v rodiči je menší nebo rovna hodnotám v jeho synech) na dvě části. Korektní halda splňuje haldovu vlastnost mezi všemi dvojicemi rodič - syn. 
+Vrchní řez haldou tento predikát omezuje pouze na syny, kteří mají index v haldě ostře menší než problematický vrchol. Pro tyto vrcholy a jejich rodiče musí platit haldová vlastnost.
+Spodní řez haldou omezuje původní predikát na vrcholy, které mají index v haldě ostře větší než problematický index a pro ně také musí platit haldová vlastnost.
+Pro algoritmus probublání nahoru musí být zajištěno, že pouze problematický vrchol jakožto syn může porušovat haldoovu podmínku se svým rodičem.
+Princip důkazu spočívá v postupném posouvání vrchního a horního řezu do té doby, než horní řez není aplikován na žádný vrchol a spodní řez je aplikován na celou haldu. Tento moment nastává při pokusu o probublání kořene haldy. Jelikož žádný syn nemůže mít menší vrchol než kořen, predikát horního řezu je triviálně splněn. Dolní řež je poté speciálním případem původního predikátu korektní haldy. Tento princip je také zefektivněn v případě, že najdeme správné místo, kde by měl problematický vrchol zůstat, haldová vlastnost určitě platí pro vrcholy v horním i spodním řezu a nově i pro správně probublaný vrchol, což zaručuje plně splněný původní predikát korektní haldy.
+
+\section{Důkaz korektnosti algoritmu opravení haldy probubláním dolů}
+
+Podobně jako v případě probublání problémového prvku nahoru je u algoritmu probublání prvku haldy dolů využit řez haldou. Oproti řezu, který byl využit pro probublání nahoru tento řez mluví o rodičích. Protože v případě problémového prvku je možné, že pro oba jeho syny bude potrebušena haldová vlastnost. Kdežto pří probublání nahoru bylo přímo jasné mezi kterou dvojicí rodič syn je vlastnost porušená.
+
+
+
+\inputminted{c}{code/reference-problematic.c}
+
+\begin{minted}{c}
+/*@
+    requires ...;
+*/
+void HeapInsert(Heap *heap)
+{
+    // ...
+}
+\end{minted}
 
 \lipsum[2] \cite{def:1, def:2}
 
