@@ -257,7 +257,15 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 \lipsum[4-5]
 
 %---------------------------------------------------------------
-\chapter{Lorem ipsum}
+\chapter{Binární halda}
+%---------------------------------------------------------------
+\begin{definition}[Uložení haldy v poli]
+...
+\end{definition}
+
+
+%---------------------------------------------------------------
+\chapter{Implementace důkazu binární haldy}
 %---------------------------------------------------------------
 
 \begin{chapterabstract}
@@ -266,29 +274,75 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis. \cite{Kopka2004}
 
-\section{Problematika důkazů při práci s referenčními datovými typy}
+\section{Hledání minimálního prvku}
 
-V průběhu tvorby autor práce předával datovou strukturu mezi jednotlivými funkcemi pomocí odkazu na paměť. Princip předávání celé datové struktury pomocí odkazu umožňuje minimalizovat počet proměnných na zásobníku a všechny hodnoty ukládá v dynamické části paměti.
+\subsection{Probublání prvku nahoru}
 
-Datová struktura reprezentující haldu se sestává z ukazatele na začátek pole, ve kterém jsou prvky haldy uložené, celočíselné hodnoty reprezentující aktuální počet uložených prvků v haldě a maximální kapacitu alokované paměti pole.
+Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota některého vrcholu.
 
-Pokud je tato struktura předaná do některé obslužné funkce, která by s některými hodnotami pracovala, Frama-C a její WP plugin nemůže zajistit, že se v průběhu provádění dané funkce hodnoty nebudou měnit. Jelikož k hodnotám uloženým v haldě přistupujeme pomocí dereference ukazatele, může se teoreticky kdykoli stát, že hodnoty v paměti, kam daný ukazatel ukazuje již nejsou aktuální. Příkladem můžou být například vícevláknové aplikace.
+\begin{definition}[Vrchní řez haldy pomocí potomka]
+Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+Vrchním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde $V' = \{ v: v \in V \land k(v) < i \}$ a~$E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+\end{definition}
 
-\section{Důkaz korektnosti algoritmu opravení haldy probubláním nahoru}
+\begin{definition}[Spodní řez haldy pomocí potomka]
+Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+Spodním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde $V' = \{ v: v \in V \land k(v) > i \} \cup \{ Parent(v): v \in V \land k(v) > i \}$ a~$E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+\end{definition}
 
-Probublání prvku nahoru potřeba provést, pokud se v některý moment objeví v haldě prvek, který nesplňuje vlastnosti haldy a hodnota v daném vrcholu je menší, než hodnota v jeho rodiči. Tento stav nastává při vkládání prvku do haldy, kde se nový prvek přidá jako poslední prvek v téměř úplném binárním stromě a provede se probublání nahoru, aby se daný prvek dostal do správného místa v haldě tak, aby byla zajištěna vlastnost haldy pro všechny vrcholy rodičů a jejich synů.
 
-\subsection{Řez haldou}
 
-Pro důkaz autor využil řez haldou, který rozděluje graf haldy dle vlastnosti haldy (hodnota v rodiči je menší nebo rovna hodnotám v jeho synech) na dvě části. Korektní halda splňuje haldovu vlastnost mezi všemi dvojicemi rodič - syn. 
-Vrchní řez haldou tento predikát omezuje pouze na syny, kteří mají index v haldě ostře menší než problematický vrchol. Pro tyto vrcholy a jejich rodiče musí platit haldová vlastnost.
-Spodní řez haldou omezuje původní predikát na vrcholy, které mají index v haldě ostře větší než problematický index a pro ně také musí platit haldová vlastnost.
-Pro algoritmus probublání nahoru musí být zajištěno, že pouze problematický vrchol jakožto syn může porušovat haldoovu podmínku se svým rodičem.
-Princip důkazu spočívá v postupném posouvání vrchního a horního řezu do té doby, než horní řez není aplikován na žádný vrchol a spodní řez je aplikován na celou haldu. Tento moment nastává při pokusu o probublání kořene haldy. Jelikož žádný syn nemůže mít menší vrchol než kořen, predikát horního řezu je triviálně splněn. Dolní řež je poté speciálním případem původního predikátu korektní haldy. Tento princip je také zefektivněn v případě, že najdeme správné místo, kde by měl problematický vrchol zůstat, haldová vlastnost určitě platí pro vrcholy v horním i spodním řezu a nově i pro správně probublaný vrchol, což zaručuje plně splněný původní predikát korektní haldy.
 
-\section{Důkaz korektnosti algoritmu opravení haldy probubláním dolů}
+\section{Vložení prvku}
 
-Podobně jako v případě probublání problémového prvku nahoru je u algoritmu probublání prvku haldy dolů využit řez haldou. Oproti řezu, který byl využit pro probublání nahoru tento řez mluví o rodičích. Protože v případě problémového prvku je možné, že pro oba jeho syny bude potrebušena haldová vlastnost. Kdežto pří probublání nahoru bylo přímo jasné mezi kterou dvojicí rodič syn je vlastnost porušená.
+\subsection{Probublání prvku dolů}
+
+\section{Odstranění minimálního prvku}
+
+\section{Změna hodnoty vrcholu}
+
+\subsection{Snížení hodnoty vrcholu}
+
+\subsection{Zvýšení hodnoty vrcholu}
+
+\section{Konstrukce haldy}
+
+
+%---------------------------------------------------------------
+\chapter{Metody ladění při vývoji důkazu}
+%---------------------------------------------------------------
+
+\section{Zúžení vstupních podmínek}
+
+\section{Krokování}
+
+\section{Kontradikce}
+
+
+
+%\section{Důkazy s referenčními datovými typy}
+%
+%V průběhu tvorby autor práce předával datovou strukturu mezi jednotlivými funkcemi pomocí odkazu na paměť. Princip předávání celé datové struktury pomocí odkazu umožňuje minimalizovat počet proměnných na zásobníku a všechny hodnoty ukládá v dynamické části paměti.
+%
+%Datová struktura reprezentující haldu se sestává z ukazatele na začátek pole, ve kterém jsou prvky haldy uložené, celočíselné hodnoty reprezentující aktuální počet uložených prvků v haldě a maximální kapacitu alokované paměti pole.
+%
+%Pokud je tato struktura předaná do některé obslužné funkce, která by s některými hodnotami pracovala, Frama-C a její WP plugin nemůže zajistit, že se v průběhu provádění dané funkce hodnoty nebudou měnit. Jelikož k hodnotám uloženým v haldě přistupujeme pomocí dereference ukazatele, může se teoreticky kdykoli stát, že hodnoty v paměti, kam daný ukazatel ukazuje již nejsou aktuální. Příkladem můžou být například vícevláknové aplikace.
+%
+%\section{Opravení haldy probubláním nahoru}
+%
+%Probublání prvku nahoru potřeba provést, pokud se v některý moment objeví v haldě prvek, který nesplňuje vlastnosti haldy a hodnota v daném vrcholu je menší, než hodnota v jeho rodiči. Tento stav nastává při vkládání prvku do haldy, kde se nový prvek přidá jako poslední prvek v téměř úplném binárním stromě a provede se probublání nahoru, aby se daný prvek dostal do správného místa v haldě tak, aby byla zajištěna vlastnost haldy pro všechny vrcholy rodičů a jejich synů.
+%
+%\subsection{Řez haldou}
+%
+%Pro důkaz autor využil řez haldou, který rozděluje graf haldy dle vlastnosti haldy (hodnota v rodiči je menší nebo rovna hodnotám v jeho synech) na dvě části. Korektní halda splňuje haldovu vlastnost mezi všemi dvojicemi rodič - syn. 
+%Vrchní řez haldou tento predikát omezuje pouze na syny, kteří mají index v haldě ostře menší než problematický vrchol. Pro tyto vrcholy a jejich rodiče musí platit haldová vlastnost.
+%Spodní řez haldou omezuje původní predikát na vrcholy, které mají index v haldě ostře větší než problematický index a pro ně také musí platit haldová vlastnost.
+%Pro algoritmus probublání nahoru musí být zajištěno, že pouze problematický vrchol jakožto syn může porušovat haldoovu podmínku se svým rodičem.
+%Princip důkazu spočívá v postupném posouvání vrchního a horního řezu do té doby, než horní řez není aplikován na žádný vrchol a spodní řez je aplikován na celou haldu. Tento moment nastává při pokusu o probublání kořene haldy. Jelikož žádný syn nemůže mít menší vrchol než kořen, predikát horního řezu je triviálně splněn. Dolní řež je poté speciálním případem původního predikátu korektní haldy. Tento princip je také zefektivněn v případě, že najdeme správné místo, kde by měl problematický vrchol zůstat, haldová vlastnost určitě platí pro vrcholy v horním i spodním řezu a nově i pro správně probublaný vrchol, což zaručuje plně splněný původní predikát korektní haldy.
+%
+%\section{Důkaz korektnosti algoritmu opravení haldy probubláním dolů}
+%
+%Podobně jako v případě probublání problémového prvku nahoru je u algoritmu probublání prvku haldy dolů využit řez haldou. Oproti řezu, který byl využit pro probublání nahoru tento řez mluví o rodičích. Protože v případě problémového prvku je možné, že pro oba jeho syny bude potrebušena haldová vlastnost. Kdežto pří probublání nahoru bylo přímo jasné mezi kterou dvojicí rodič syn je vlastnost porušená.
 
 
 
@@ -305,6 +359,25 @@ void HeapInsert(Heap *heap)
 \end{minted}
 
 \lipsum[2] \cite{def:1, def:2}
+
+%---------------------------------------------------------------
+\chapter{Hledání nejkratší cesty}
+%---------------------------------------------------------------
+
+\section{Dijkstrův algoritmus}
+
+%---------------------------------------------------------------
+\chapter{Vývojové prostředí}
+%---------------------------------------------------------------
+
+\section{Docker}
+
+\subsection{Reverzní proxy}
+
+\subsection{Editor kódu}
+
+\subsection{Verifikační prostředí}
+
 
 \subsection{Class aptent taciti}
 
