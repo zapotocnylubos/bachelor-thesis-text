@@ -278,7 +278,7 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 
 \subsection{Probublání prvku nahoru}
 
-Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota některého vrcholu.
+Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota jednoho vrcholu.
 
 \begin{definition}[Vrchní řez haldy pomocí potomka]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
@@ -293,7 +293,6 @@ Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $
 	V grafu vrchního řezu haldy pomocí potomka stále platí haldové uspořádání.
 \end{remark}
 
-
 \begin{definition}[Spodní řez haldy pomocí potomka]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
 	Spodním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde
@@ -307,11 +306,33 @@ Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $
 	V grafu spodního řezu haldy pomocí potomka stále platí haldové uspořádání.
 \end{remark}
 
+\begin{listing}
+	\caption{Probublání prvku nahoru}
+	\label{list:bubbleup}
+	\begin{minted}{c}
+void HeapBubbleUp(Heap heap, int index) {
+  int parent;
+
+  while (HeapHasParent(heap, index)) {
+    parent = HeapParent(index);
+
+    if (HeapElementValue(heap, parent) <= HeapElementValue(heap, index)) {
+      break;
+    }
+
+    HeapSwap(heap, index, parent);
+
+    index = parent;
+  }
+}
+	\end{minted}
+\end{listing}
+
 \section{Vložení prvku}
 
 \subsection{Probublání prvku dolů}
 
-Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota některého vrcholu.
+Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota jednoho vrcholu.
 
 \begin{definition}[Vrchní řez haldy pomocí rodiče]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
@@ -338,6 +359,29 @@ Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\
 \begin{remark}
 	V grafu spodního řezu haldy pomocí rodiče stále platí haldové uspořádání.
 \end{remark}
+
+\begin{listing}
+	\caption{Probublání prvku dolů}
+	\label{list:bubbledown}
+	\begin{minted}{c}
+void HeapBubbleDown(Heap heap, int index) {
+  int child;
+
+  while (HeapHasChild(heap, index)) {
+    child = HeapLowerChild(heap, index);
+
+    if (HeapElementValue(heap, index) <= HeapElementValue(heap, child)) {
+      break;
+    }
+
+    HeapSwap(heap, index, child);
+
+    index = child;
+  }
+}
+	\end{minted}
+\end{listing}
+
 
 
 \section{Odstranění minimálního prvku}
