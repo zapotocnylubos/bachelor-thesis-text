@@ -259,6 +259,32 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 %---------------------------------------------------------------
 \chapter{Binární halda}
 %---------------------------------------------------------------
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,draw,thick] (0) {2}
+		child[thick] { node [circle,draw] (1) {4}
+			child { node [circle,draw] (3) {6}
+				child { node [circle,draw] (7) {7} }
+				child { node [circle,draw] (8) {8} }
+			}
+			child { node [circle,draw] (4) {5}
+				child { node [circle,draw] (9) {7} }
+				child { node [circle,draw] (10) {8} }
+			}
+		}
+		child[thick] { node [circle,draw] (2) {5}
+			child { node [circle,draw] (5) {7}
+				child { node [circle,draw] (11) {8} }
+				child { node [circle,draw] (12) {9} }
+			}
+			child {node [circle,draw] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{~Lorem ipsum dolor sit amet}\label{img:index2}
+\end{figure}
+
 \begin{definition}[Uložení haldy v poli]
 ...
 \end{definition}
@@ -280,6 +306,10 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 
 Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota jednoho vrcholu.
 
+Algoritmus předpokládá, že haldové uspořádání je možné porušit pouze mezi jednou dvojicí vrcholů $u$ a $v$, kde $u$ je rodičovský vrchol a $v$ je jeho potomek. Tedy v celé haldě s výjimkou této dvojice musí platit haldové uspořádání. V této dvojici může platit, že syn~$v$ má menší hodnotu než jeho otec~$u$. Dále se předpokládá, že tento algoritmus bude proveden pouze v případě, že se hodnota některého vrcholu zmenšila, tudíž je potřeba tento vrchol probublat nahoru, kde se nacházejí vrcholy s menšími hodnotami. Pokud by se hodnota zvyšovala, měl by být aplikován algoritmus probublání dolů, o kterém pojednává sekce \ref{subsec:bubbledown}.
+
+Pro důkaz korektnosti jsou využity \textit{řezy} haldou a indukcí je následně možné dokázat korektnost tohoto algoritmu.
+
 \begin{definition}[Vrchní řez haldy pomocí potomka]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
 	Vrchním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde
@@ -288,6 +318,31 @@ Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $
 	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
 	\end{enumerate}
 \end{definition}
+
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw=blue,fill=cyan!15] (0) {2}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (1) {4}
+			child { node [circle,draw,fill=cyan!15] (3) {6}
+				child[draw=black] { node [circle,draw] (7) {9} }
+				child[draw=black] { node [circle,draw] (8) {8} }
+			}
+			child[draw=black] { node [circle,draw,very thick] (4) {5}
+				child[draw=black] { node [circle,draw] (9) {7} }
+				child[draw=black] { node [circle,draw] (10) {6} }
+			}
+		}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {5}
+			child[draw=black] { node [circle,draw] (5) {7}
+				child { node [circle,draw] (11) {8} }
+				child { node [circle,draw] (12) {9} }
+			}
+			child[draw=black] {node [circle,draw] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka vrchního řezu haldy pomocí potomka}\label{img:heap-upper-child-cut}
+\end{figure}
 
 \begin{remark}
 	V grafu vrchního řezu haldy pomocí potomka stále platí haldové uspořádání.
@@ -302,11 +357,36 @@ Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $
 	\end{enumerate}
 \end{definition}
 
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw] (0) {2}
+		child[thick] { node [circle,draw] (1) {4}
+			child { node [circle,draw=blue,fill=cyan!15] (3) {6}
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (7) {9} }
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (8) {8} }
+			}
+			child { node [circle,draw=blue,fill=cyan!15,very thick] (4) {5}
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (9) {7} }
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (10) {6} }
+			}
+		}
+		child[thick] { node [circle,draw=blue,fill=cyan!15] (2) {5}
+			child[draw=blue] { node [circle,draw,fill=cyan!15] (5) {7}
+				child { node [circle,draw,fill=cyan!15] (11) {8} }
+				child { node [circle,draw,fill=cyan!15] (12) {9} }
+			}
+			child[draw=blue] {node [circle,draw,fill=cyan!15] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka spodního řezu haldy pomocí potomka}\label{img:heap-lower-child-cut}
+\end{figure}
+
 \begin{remark}
 	V grafu spodního řezu haldy pomocí potomka stále platí haldové uspořádání.
 \end{remark}
 
-\begin{listing}
+\begin{listing}[h!]
 	\caption{Probublání prvku nahoru}
 	\label{list:bubbleup}
 	\begin{minted}{c}
@@ -331,6 +411,7 @@ void HeapBubbleUp(Heap heap, int index) {
 \section{Vložení prvku}
 
 \subsection{Probublání prvku dolů}
+\label{subsec:bubbledown}
 
 Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota jednoho vrcholu.
 
