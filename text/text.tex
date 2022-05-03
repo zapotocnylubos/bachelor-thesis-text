@@ -281,21 +281,47 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota některého vrcholu.
 
 \begin{definition}[Vrchní řez haldy pomocí potomka]
-Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
-Vrchním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde $V' = \{ v: v \in V \land k(v) < i \}$ a~$E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+	Vrchním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde
+	\begin{enumerate}
+	  \item[] $V' = \{ v: v \in V \land \Index(v) < i \}$
+	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	\end{enumerate}
 \end{definition}
 
 \begin{definition}[Spodní řez haldy pomocí potomka]
-Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
-Spodním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde $V' = \{ v: v \in V \land k(v) > i \} \cup \{ Parent(v): v \in V \land k(v) > i \}$ a~$E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+	Spodním řezem haldy pomocí potomka nazveme graf $G' = (V', E')$, kde
+	\begin{enumerate}
+	  \item[] $V' = \{ v: v \in V \land \Index(v) > i \} \cup \{ \Parent(v): v \in V \land \Index(v) > i \}$
+	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	\end{enumerate}
 \end{definition}
-
-
-
 
 \section{Vložení prvku}
 
 \subsection{Probublání prvku dolů}
+
+Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota některého vrcholu.
+
+\begin{definition}[Vrchní řez haldy pomocí rodiče]
+	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+	Vrchním řezem haldy pomocí rodiče nazveme graf $G' = (V', E')$, kde
+	\begin{enumerate}
+	  \item[] $V' = \{ v: v \in V \land \Index(v) < i \} \cup \{ \LeftChild(v): v \in V \land \Index(v) < i \} \cup \{ \RightChild(v): v \in V \land \Index(v) < i \}$
+	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	\end{enumerate}
+\end{definition}
+
+\begin{definition}[Spodní řez haldy pomocí rodiče]
+	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
+	Spodním řezem haldy pomocí rodiče nazveme graf $G' = (V', E')$, kde
+	\begin{enumerate}
+	  \item[] $V' = \{ v: v \in V \land \Index(v) > i \}$
+	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
+	\end{enumerate}
+\end{definition}
+
 
 \section{Odstranění minimálního prvku}
 
