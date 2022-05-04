@@ -294,15 +294,11 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 \chapter{Implementace důkazu binární haldy}
 %---------------------------------------------------------------
 
-\begin{chapterabstract}
-	Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. 
-\end{chapterabstract}
-
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis. \cite{Kopka2004}
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis.
 
 \section{Hledání minimálního prvku}
 
-\subsection{Probublání prvku nahoru}
+\section{Probublání prvku nahoru}
 
 Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota pouze jednoho vrcholu.
 
@@ -330,7 +326,7 @@ void HeapBubbleUp(Heap heap, int index) {
 	\end{minted}
 \end{listing}
 
-Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto \textit{řezy} slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Oba řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, kde nemusí platit haldové uspořádání.
+Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto řezy slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Oba řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, ve které nemusí platit haldové uspořádání.
 
 \begin{definition}[Vrchní řez haldy pomocí potomka]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
@@ -367,10 +363,10 @@ Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyt
 \end{figure}
 
 \begin{remark}
-	V grafu vrchního řezu haldy pomocí potomka stále platí haldové uspořádání.
+	V grafu vrchního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL kód popisující vrchní řez haldy pomocí potomka nemusí vytvářet nový podgraf s~výše definovanými vlastnostmi, ale stačí pouze ověřit, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Tento predikát je tedy platný při zavolání funkce, po každém provedení cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následné napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru.
+ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při zavolání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následné napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí potomka}
@@ -422,7 +418,7 @@ ACSL kód popisující vrchní řez haldy pomocí potomka nemusí vytvářet nov
 \end{figure}
 
 \begin{remark}
-	V grafu spodního řezu haldy pomocí potomka stále platí haldové uspořádání.
+	V grafu spodního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
 ACSL implementace predikátu pro spodní řez haldy pomocí potomka je velmi podobná hornímu řezu. Oproti vrchnímu řezu, který pokrývá vrcholy haldy s indexem menším než problematický vrchol, spodní řez pokrývá potomky s vyšším indexem než problematický vrchol.
@@ -442,14 +438,41 @@ ACSL implementace predikátu pro spodní řez haldy pomocí potomka je velmi pod
 	\end{minted}
 \end{listing}
 
-Indukcí lze následně dokázat, že při probublávání problematického vrcholu nahoru může vznikat  pouze jedna nová problematická dvojice a původní problematická dvojice má již haldové uspořádání opraveno a dané hrana se přidá v dalším kroku algoritmu do spodního řezu haldy pomocí potomka.
+Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haly. Tato vlastnost je automaticky splněna pro všechny hrany s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto do kódu zakládáme vstupní podmínku a invariantu cyklu, které kontrolují, zdali platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
 
+Tato vlastnost umožňuje probublávat problematický vrchol nahoru, zaručuje totiž, že rodičovský prvek, který s problematickým vrcholem vyměníme, bude po provedení výměny splňovat haldové uspořádání se svými novými potomky.
 
+\begin{listing}[H]
+	\caption{Kontrola tranzitivního haldového uspořádání mezi řezy haldou}
+	\begin{minted}{c}
+/*@
+  requires heap_lower_child_cut_valid_heap_property_left_child:
+    HeapHasParent(heap, index)
+    && HeapHasLeftChild(heap, index) ==>
+      HasHeapProperty(heap, Parent(index), LeftChild(index));
 
+  requires heap_lower_child_cut_valid_heap_property_right_child:
+    HeapHasParent(heap, index)
+    && HeapHasRightChild(heap, index) ==>
+      HasHeapProperty(heap, Parent(index), RightChild(index));
+*/
+	\end{minted}
+\end{listing}
+
+Indukcí lze dokázat, že při probublávání problematického vrcholu nahoru může vznikat  pouze jedna nová problematická dvojice a původní problematická dvojice má již haldové uspořádání opraveno. Původní problematická hrana se v dalším kroku cyklu vyskytuje v spodním řezu haldy pomocí potomka. Tedy pro ni platí haldové uspořádání.
+
+Spojením horního a spodního řezu haldou a tranzitivního haldového uspořádání je možné formálně dokázat korektnosti algoritmu probublání prvku nahoru. Jelikož tyto vlastnosti platí na konci každého kroku cyklu, při dokončení cyklu se nacházíme v jednom z těchto stavů:
+
+\begin{enumerate}
+  \item problematický prvek probublal až do kořene haldy,
+  \item problematický prvek nemohl dále probublat, tudíž je na správné pozici v haldě.
+\end{enumerate}
+
+Oba případy nám při spojení znalostí o horním a dolním řezu haldou a znalostí o aktuálně opravené hraně dávají výsledek, že pro každou hranu $(u, v)$ haldy, kde $u$ je rodičovský vrchol $v$, platí haldové uspořádání.
 
 \section{Vložení prvku}
 
-\subsection{Probublání prvku dolů}
+\section{Probublání prvku dolů}
 \label{subsec:bubbledown}
 
 Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota pouze jednoho vrcholu.
@@ -464,7 +487,7 @@ Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\
 \end{definition}
 
 \begin{remark}
-	V grafu vrchního řezu haldy pomocí rodiče stále platí haldové uspořádání.
+	V grafu vrchního řezu haldy pomocí rodiče platí haldové uspořádání.
 \end{remark}
 
 \begin{definition}[Spodní řez haldy pomocí rodiče]
@@ -477,7 +500,7 @@ Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\
 \end{definition}
 
 \begin{remark}
-	V grafu spodního řezu haldy pomocí rodiče stále platí haldové uspořádání.
+	V grafu spodního řezu haldy pomocí rodiče platí haldové uspořádání.
 \end{remark}
 
 \begin{listing}[H]
