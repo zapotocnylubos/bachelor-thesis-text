@@ -512,11 +512,11 @@ Oba případy nám při spojení znalostí o horním a dolním řezu haldou a zn
 \section{Vložení prvku}
 \label{subsec:HeapInsert}
 
-Vložení prvku do haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ vkládá nový vrchol do haldy a následně v~čase $\mathcal{O}(\log(n))$ tento vrchol umisťuje na správnou pozici v haldě. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
+Vložení prvku do haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ vloží nový vrchol do haldy a následně v~čase $\mathcal{O}(\log(n))$ tento vrchol umístí na správnou pozici v haldě. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
 
-Algoritmus přidává nový vrchol do nejspodnější hladiny haldy tak, aby byl udržen tvar haldy. Pro takto vložený vrchol ale nemusí platit haldové uspořádání s jeho rodičovským vrcholem. Haldové uspořádání před vložením vrcholu platilo pro všechny vrcholy s nižším indexem, než má aktuálně přidaný prvek. Zároveň se mohlo stát, že byl vložen vrchol s menší hodnotou než má jeho rodičovský vrchol. Proto je nutné provést probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
+Algoritmus přidává nový vrchol do nejspodnější hladiny haldy tak, aby byl udržen tvar haldy. Pro takto vložený vrchol ale nemusí platit haldové uspořádání s jeho rodičovským vrcholem. Mohlo se stát, že vložený vrchol má menší hodnotou než jeho rodičovský vrchol. Proto je nutné provést probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
 
-Algoritmus probublání vrcholu nahoru má tří vstupní podmínky. V haldě musí platit predikát o horním řezu podle potomka, který v případě přidání nového vrcholu platí. Před přidáním jsme měli haldu, kde platilo haldové uspořádání. Nový prvek je vložen na nový největší index v haldě. Tedy pro tento nový index platí řez haldou pomocí potomka, protože tento řez popisuje původní graf haldy. Spodní řez haldy pomocí potomka také platí, protože je to prázdný graf. Tranzitivní haldové uspořádání u aktuálně přidaného vrcholu také platí, jelikož tento vrchol nemá žádné potomky.
+Algoritmus probublání vrcholu nahoru má tři vstupní podmínky. V haldě musí platit predikát o horním řezu podle potomka, který v případě přidání nového vrcholu platí. Před přidáním vrcholu byla halda validní a platilo v ní haldové uspořádání. Nový prvek je vložen na nový největší index v haldě. Tedy pro tento nový index platí vrchní řez haldou pomocí potomka, protože tento řez popisuje původní haldu, ve které platilo haldové uspořádání. Spodní řez haldy pomocí potomka také platí, protože se jedná o prázdný graf. Tranzitivní haldové uspořádání u aktuálně přidaného vrcholu také platí, protože tento vrchol nemá žádné potomky.
 
 \begin{figure}[H]
 	\centering
@@ -540,9 +540,9 @@ Algoritmus probublání vrcholu nahoru má tří vstupní podmínky. V haldě mu
 	\caption{Ukázka vrchního řezu haldy pomocí potomka při přidání vrcholu}\label{img:heap-insert-heap-upper-child-cut}
 \end{figure}
 
-Na obrázku \ref{img:heap-insert-heap-upper-child-cut} je zobrazeno přidání nového vrcholu do haldy a je zvýrazněn horní řez podle potomka.
+Na obrázku \ref{img:heap-insert-heap-upper-child-cut} je zobrazeno přidání nového vrcholu do haldy a je zvýrazněn horní řez haldy podle potomka.
 
-Algoritmus probublání nahoru tento nový vrchol prohodí s jeho rodičovským vrcholem, protože nový vrchol má menší hodnotu než jeho rodičovský vrchol. Tímto prvním krokem algoritmu se prvek dostal níže v haldě, ale stále platí všechny tři invarianty cyklu. Horní řez haldy pomocí potomka se budou pouze zmenšovat, spodní řez haldy pomocí potomka se bude zvětšovat o vrcholy, které se v původním kroku vyskytovaly v horním řezu společně s vrcholem původního rodiče nového vrcholu.
+Algoritmus probublání nahoru tento nový vrchol prohodí s jeho rodičovským vrcholem, protože nově přidaný vrchol má menší hodnotu než jeho rodičovský vrchol. Tímto prvním krokem algoritmu se nově přidaný vrchol dostal níže v haldě, ale stále platí všechny tři invarianty cyklu. Horní řez haldy pomocí potomka se pouze zmenšil, spodní řez haldy pomocí potomka se zvětšil o vrcholy, které se v původním kroku vyskytovaly v horním řezu společně s vrcholem původního rodiče nového vrcholu. Tranzitivní haldové uspořádání začíná platit mezi rodičovským prvkem aktuálně probublaného vrcholu a jeho potomky.
 
 Algoritmem probublání se nový vrchol dostane do správné pozice a ve výsledné haldě, o jeden vrchol větší, je opraveno haldové uspořádání.
 
