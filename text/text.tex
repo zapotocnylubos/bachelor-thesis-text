@@ -301,9 +301,9 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 \section{Probublání prvku nahoru}
 \label{subsec:HeapBubbleUp}
 
-Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota pouze jednoho vrcholu.
+Probublání prvku haldy směrem nahoru (ke kořeni) je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota pouze toho vrcholu, který má být probublán.
 
-Algoritmus předpokládá, že haldové uspořádání je možné porušit pouze mezi jednou dvojicí vrcholů $u$ a $v$, kde $u$ je rodičovský vrchol a $v$ je jeho potomek. Tedy v celé haldě s výjimkou této dvojice musí platit haldové uspořádání. V této dvojici může platit, že syn~$v$ má menší hodnotu než jeho otec~$u$. Dále se předpokládá, že tento algoritmus bude proveden pouze v případě, že se hodnota některého vrcholu zmenšila, tudíž je potřeba tento vrchol probublat nahoru, kde se nacházejí vrcholy s menšími hodnotami. Pokud by se hodnota zvýšila, měl by být aplikován algoritmus probublání dolů, o kterém pojednává sekce \ref{subsec:bubbledown}.
+Algoritmus předpokládá, že haldové uspořádání je možné porušit pouze mezi jednou dvojicí vrcholů $u$ a $v$, kde $u$ je rodičovský vrchol a $v$ je jeho potomek. Tedy v celé haldě s výjimkou této dvojice musí platit haldové uspořádání. V této dvojici může platit, že syn~$v$ má menší hodnotu než jeho otec~$u$. Dále se předpokládá, že tento algoritmus bude proveden po zmenšení hodnoty některého vrcholu nebo po vložení nového vrcholu do haldy. V obou případech je potřeba tento vrchol probublat nahoru do správné pozice v haldě. Pokud by se hodnota zvýšila, měl by být aplikován algoritmus probublání dolů, o kterém pojednává sekce \ref{subsec:HeapBubbleDown}.
 
 \begin{listing}[H]
 	\caption{Probublání prvku nahoru}
@@ -327,7 +327,35 @@ void HeapBubbleUp(Heap heap, int index) {
 	\end{minted}
 \end{listing}
 
-Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto řezy slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Oba řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, ve které nemusí platit haldové uspořádání.
+Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto řezy slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, ve které nemusí platit haldové uspořádání.
+
+Rozdělení haldy pro operaci probublání nahoru by mohlo vypadat podobně jak znázorňuje Obrázek \ref{img:heap-intuitive-cut}. Tento přístup ale není vhodný pro algoritmické zpracování a dokazovaní, jelikož se toto rozdělení složitě popisuje. Zavedeme proto horní a spodní řezy haldy pomocí potomka, které pracují s indexy jednotlivých prvků haldy reprezentované polem.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw=blue,fill=cyan!15] (0) {2}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (1) {4}
+			child { node [circle,draw,fill=cyan!15] (3) {6}
+				child { node [circle,draw,fill=cyan!15] (7) {9} }
+				child { node [circle,draw,fill=cyan!15] (8) {8} }
+			}
+			child[draw=black] { node [circle,draw,ultra thick] (4) {5}
+				child { node [circle,draw] (9) {7} }
+				child { node [circle,draw] (10) {6} }
+			}
+		}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {5}
+			child { node [circle,draw,fill=cyan!15] (5) {7}
+				child { node [circle,draw,fill=cyan!15] (11) {8} }
+				child { node [circle,draw,fill=cyan!15] (12) {9} }
+			}
+			child { node [circle,draw,fill=cyan!15] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka intuitivního řezu haldy}
+	\label{img:heap-intuitive-cut}
+\end{figure}
 
 \begin{definition}[Vrchní řez haldy pomocí potomka]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
@@ -347,7 +375,7 @@ Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyt
 				child[draw=black] { node [circle,draw] (7) {9} }
 				child[draw=black] { node [circle,draw] (8) {8} }
 			}
-			child[draw=black] { node [circle,draw,very thick] (4) {5}
+			child[draw=black] { node [circle,draw,ultra thick] (4) {5}
 				child { node [circle,draw] (9) {7} }
 				child { node [circle,draw] (10) {6} }
 			}
@@ -360,14 +388,15 @@ Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyt
 			child[draw=black] {node [circle,draw] (6) {9} }
 		};
 	\end{tikzpicture}
-	\caption{Ukázka vrchního řezu haldy pomocí potomka}\label{img:heap-upper-child-cut}
+	\caption{Ukázka vrchního řezu haldy pomocí potomka}
+	\label{img:heap-upper-child-cut}
 \end{figure}
 
 \begin{remark}
 	V grafu vrchního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při zavolání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následné napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru.
+ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Nemusí ale platit, že je graf vrchního řezu haldy na konci vykonávání funkce prázdný. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do kořene haldy. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí potomka}
@@ -402,7 +431,7 @@ ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový pod
 				child[draw=blue] { node [circle,draw,fill=cyan!15] (7) {9} }
 				child[draw=blue] { node [circle,draw,fill=cyan!15] (8) {8} }
 			}
-			child { node [circle,draw=blue,fill=cyan!15,very thick] (4) {5}
+			child { node [circle,draw=blue,fill=cyan!15,ultra thick] (4) {5}
 				child[draw=blue] { node [circle,draw,fill=cyan!15] (9) {7} }
 				child[draw=blue] { node [circle,draw,fill=cyan!15] (10) {6} }
 			}
@@ -439,20 +468,22 @@ ACSL implementace predikátu pro spodní řez haldy pomocí potomka je velmi pod
 	\end{minted}
 \end{listing}
 
-Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haly. Tato vlastnost je automaticky splněna pro všechny hrany s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto do kódu zakládáme vstupní podmínku a invariantu cyklu, které kontrolují, zdali platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
+Výpis kódu \ref{acsl:HeapLowerChildCut} správně odděluje vrcholy, které mají index vyšší než problematický vrchol. Zároveň ale neomezuje hodnoty rodičovských vrcholů. Proto se do spodního řezu pomocí potomka správně dostane i problematický vrchol a také rodičovské vrcholy, které mají menší index než problematický vrchol. Hrana mezi problematickým vrcholem a jeho rodičovským vrcholem zde správně není.
+
+Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haly. Tato vlastnost je automaticky splněna pro všechny hrany s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto do kódu zavádíme vstupní podmínku a invariantu cyklu, které kontrolují, zda platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
 
 Tato vlastnost umožňuje probublávat problematický vrchol nahoru, zaručuje totiž, že rodičovský prvek, který s problematickým vrcholem vyměníme, bude po provedení výměny splňovat haldové uspořádání se svými novými potomky.
 
 \begin{listing}[H]
-	\caption{Kontrola tranzitivního haldového uspořádání mezi řezy haldou}
+	\caption{Predikáty tranzitivního haldového uspořádání mezi řezy haldou}
 	\begin{minted}{c}
 /*@
-  requires heap_lower_child_cut_valid_heap_property_left_child:
+  predicate HeapLowerChildCutHeapPropertyLeftChild(Heap heap, integer index) = 
     HeapHasParent(heap, index)
     && HeapHasLeftChild(heap, index) ==>
       HasHeapProperty(heap, Parent(index), LeftChild(index));
 
-  requires heap_lower_child_cut_valid_heap_property_right_child:
+  predicate HeapLowerChildCutHeapPropertyRightChild(Heap heap, integer index) =
     HeapHasParent(heap, index)
     && HeapHasRightChild(heap, index) ==>
       HasHeapProperty(heap, Parent(index), RightChild(index));
@@ -460,9 +491,9 @@ Tato vlastnost umožňuje probublávat problematický vrchol nahoru, zaručuje t
 	\end{minted}
 \end{listing}
 
-Indukcí lze dokázat, že při probublávání problematického vrcholu nahoru může vznikat  pouze jedna nová problematická dvojice a původní problematická dvojice má již haldové uspořádání opraveno. Původní problematická hrana se v dalším kroku cyklu vyskytuje v spodním řezu haldy pomocí potomka. Tedy pro ni platí haldové uspořádání.
+Platnost těchto čtyř invariantů dokazuje, že algoritmus probublání nahoru vždy vytváří maximálně jednu novou problematickou dvojici vrcholů. Haldové uspořádání mezi touto dvojicí vrcholů je opraveno probubláním na správnou pozici nebo úplným probubláním vrcholu do kořene haldy.
 
-Spojením horního a spodního řezu haldou a tranzitivního haldového uspořádání je možné formálně dokázat korektnosti algoritmu probublání prvku nahoru. Jelikož tyto vlastnosti platí na konci každého kroku cyklu, při dokončení cyklu se nacházíme v jednom z těchto stavů:
+Spojením horního a spodního řezu haldou a tranzitivního haldového uspořádání je možné formálně dokázat korektnost algoritmu probublání prvku nahoru. Jelikož tyto vlastnosti platí na konci každého kroku cyklu, po dokončení cyklu se nacházíme v jednom z těchto stavů:
 
 \begin{enumerate}
   \item problematický prvek probublal až do kořene haldy,
@@ -470,6 +501,13 @@ Spojením horního a spodního řezu haldou a tranzitivního haldového uspořá
 \end{enumerate}
 
 Oba případy nám při spojení znalostí o horním a dolním řezu haldou a znalostí o aktuálně opravené hraně dávají výsledek, že pro každou hranu $(u, v)$ haldy, kde $u$ je rodičovský vrchol $v$, platí haldové uspořádání.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-BubbleUp}
+	\caption{Úspešné dokončení důkazu v prostředí Frama-C}
+	\label{img:F-C-HeapBubbleUp}
+\end{figure}
 
 \section{Vložení prvku}
 \label{subsec:HeapInsert}
@@ -491,7 +529,7 @@ Algoritmus probublání vrcholu nahoru má tří vstupní podmínky. V haldě mu
 			}
 			child { node [circle,draw,,fill=cyan!15] (4) {5}
 				child { node [circle,draw,fill=cyan!15] (9) {7} }
-				child[draw=black] { node [circle,draw,very thick] (10) {1} }
+				child[draw=black] { node [circle,draw,ultra thick] (10) {1} }
 			}
 		}
 		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {5}
@@ -553,6 +591,37 @@ Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\
 	\end{enumerate}
 \end{definition}
 
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw=blue,fill=cyan!15] (0) {2}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (1) {4}
+			child { node [circle,draw,ultra thick,fill=cyan!15] (3) {6}
+				child[draw=black] { node [circle,draw] (7) {7} 
+					child { node [circle,draw] (15) {9} }
+					child { node [circle,draw] (16) {8} }				
+				}
+				child[draw=black] { node [circle,draw] (8) {8} }
+			}
+			child { node [circle,draw,fill=cyan!15] (4) {5}
+				child[draw=black] { node [circle,draw] (9) {7} }
+				child[draw=black] { node [circle,draw] (10) {6} }
+			}
+		}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {3}
+			child { node [circle,draw,fill=cyan!15] (5) {4}
+				child[draw=black] { node [circle,draw] (11) {5} }
+				child[draw=black] { node [circle,draw] (12) {8} }
+			}
+			child { node [circle,draw,fill=cyan!15] (7) {6}
+				child[draw=black] { node [circle,draw] (13) {9} }
+				child[draw=black] { node [circle,draw] (14) {7} }
+			}
+		};
+	\end{tikzpicture}
+	\caption{Ukázka vrchního řezu haldy pomocí rodiče}\label{img:heap-upper-parent-cut}
+\end{figure}
+
 \begin{remark}
 	V grafu vrchního řezu haldy pomocí rodiče platí haldové uspořádání.
 \end{remark}
@@ -565,6 +634,37 @@ Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\
 	  \item[] $E' = \{ (u, v): (u, v) \in E \land u \in V' \land v \in V' \}$.
 	\end{enumerate}
 \end{definition}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,draw,thick] (0) {2}
+		child[thick] { node [circle,draw] (1) {4}
+			child { node [circle,draw,ultra thick] (3) {6}
+				child { node [circle,draw=blue,fill=cyan!15] (7) {7} 
+					child[draw=blue] { node [circle,draw,fill=cyan!15] (15) {9} }
+					child[draw=blue] { node [circle,draw,fill=cyan!15] (16) {8} }				
+				}
+				child { node [circle,draw=blue,fill=cyan!15] (8) {8} }
+			}
+			child { node [circle,draw=blue,fill=cyan!15] (4) {5}
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (9) {7} }
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (10) {6} }
+			}
+		}
+		child[thick] { node [circle,draw] (2) {3}
+			child { node [circle,draw=blue,fill=cyan!15] (5) {4}
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (11) {5} }
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (12) {8} }
+			}
+			child { node [circle,draw=blue,fill=cyan!15] (7) {6}
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (13) {9} }
+				child[draw=blue] { node [circle,draw,fill=cyan!15] (14) {7} }
+			}
+		};
+	\end{tikzpicture}
+	\caption{Ukázka spodního řezu haldy pomocí rodiče}\label{img:heap-lower-parent-cut}
+\end{figure}
 
 \begin{remark}
 	V grafu spodního řezu haldy pomocí rodiče platí haldové uspořádání.
