@@ -299,6 +299,7 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 \section{Hledání minimálního prvku}
 
 \section{Probublání prvku nahoru}
+\label{subsec:HeapBubbleUp}
 
 Probublání prvku haldy nahoru je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota pouze jednoho vrcholu.
 
@@ -306,7 +307,7 @@ Algoritmus předpokládá, že haldové uspořádání je možné porušit pouze
 
 \begin{listing}[H]
 	\caption{Probublání prvku nahoru}
-	\label{list:bubbleup}
+	\label{list:HeapBubbleUp}
 	\begin{minted}{c}
 void HeapBubbleUp(Heap heap, int index) {
   int parent;
@@ -347,8 +348,8 @@ Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyt
 				child[draw=black] { node [circle,draw] (8) {8} }
 			}
 			child[draw=black] { node [circle,draw,very thick] (4) {5}
-				child[draw=black] { node [circle,draw] (9) {7} }
-				child[draw=black] { node [circle,draw] (10) {6} }
+				child { node [circle,draw] (9) {7} }
+				child { node [circle,draw] (10) {6} }
 			}
 		}
 		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {5}
@@ -471,9 +472,75 @@ Spojením horního a spodního řezu haldou a tranzitivního haldového uspořá
 Oba případy nám při spojení znalostí o horním a dolním řezu haldou a znalostí o aktuálně opravené hraně dávají výsledek, že pro každou hranu $(u, v)$ haldy, kde $u$ je rodičovský vrchol $v$, platí haldové uspořádání.
 
 \section{Vložení prvku}
+\label{subsec:HeapInsert}
+
+Vložení prvku do haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ vkládá nový vrchol do haldy a následně v~čase $\mathcal{O}(\log(n))$ tento vrchol umisťuje na správnou pozici v haldě. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
+
+Algoritmus přidává nový vrchol do nejspodnější hladiny haldy tak, aby byl udržen tvar haldy. Pro takto vložený vrchol ale nemusí platit haldové uspořádání s jeho rodičovským vrcholem. Haldové uspořádání před vložením vrcholu platilo pro všechny vrcholy s nižším indexem, než má aktuálně přidaný prvek. Zároveň se mohlo stát, že byl vložen vrchol s menší hodnotou než má jeho rodičovský vrchol. Proto je nutné provést probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
+
+Algoritmus probublání vrcholu nahoru má tří vstupní podmínky. V haldě musí platit predikát o horním řezu podle potomka, který v případě přidání nového vrcholu platí. Před přidáním jsme měli haldu, kde platilo haldové uspořádání. Nový prvek je vložen na nový největší index v haldě. Tedy pro tento nový index platí řez haldou pomocí potomka, protože tento řez popisuje původní graf haldy. Spodní řez haldy pomocí potomka také platí, protože je to prázdný graf. Tranzitivní haldové uspořádání u aktuálně přidaného vrcholu také platí, jelikož tento vrchol nemá žádné potomky.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw=blue,fill=cyan!15] (0) {2}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (1) {4}
+			child { node [circle,draw,fill=cyan!15] (3) {6}
+				child { node [circle,draw,fill=cyan!15] (7) {9} }
+				child { node [circle,draw,fill=cyan!15] (8) {8} }
+			}
+			child { node [circle,draw,,fill=cyan!15] (4) {5}
+				child { node [circle,draw,fill=cyan!15] (9) {7} }
+				child[draw=black] { node [circle,draw,very thick] (10) {1} }
+			}
+		}
+		child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (2) {5}
+			child { node [circle,draw,fill=cyan!15] (5) {7} }
+			child { node [circle,draw,fill=cyan!15] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka vrchního řezu haldy pomocí potomka při přidání vrcholu}\label{img:heap-insert-heap-upper-child-cut}
+\end{figure}
+
+Na obrázku \ref{img:heap-insert-heap-upper-child-cut} je zobrazeno přidání nového vrcholu do haldy a je zvýrazněn horní řez podle potomka.
+
+Algoritmus probublání nahoru tento nový vrchol prohodí s jeho rodičovským vrcholem, protože nový vrchol má menší hodnotu než jeho rodičovský vrchol. Tímto prvním krokem algoritmu se prvek dostal níže v haldě, ale stále platí všechny tři invarianty cyklu. Horní řez haldy pomocí potomka se budou pouze zmenšovat, spodní řez haldy pomocí potomka se bude zvětšovat o vrcholy, které se v původním kroku vyskytovaly v horním řezu společně s vrcholem původního rodiče nového vrcholu.
+
+Algoritmem probublání se nový vrchol dostane do správné pozice a ve výsledné haldě, o jeden vrchol větší, je opraveno haldové uspořádání.
+
+\begin{listing}[H]
+	\caption{Vložení prvku}
+	\label{list:HeapInsert}
+	\begin{minted}{c}
+/*@
+    requires 0 <= HeapElementsCount(heap) < HeapElementsCapacity(heap);
+    requires \valid(HeapElements(heap) + (0 .. HeapElementsCapacity(heap) - 1));
+    requires ValidHeap(heap);
+    requires correctly_indexed:
+    	HeapElementIndex(element) == HeapElementsCount(heap);
+
+    assigns HeapElements(heap)[0..HeapElementsCount(heap)];
+    
+    ensures count_increase: 
+    	HeapElementsCount(\result) == HeapElementsCount(heap) + 1;
+    ensures ValidHeap(\result);
+*/
+Heap HeapInsert(Heap heap, HeapElement element) {
+  int index = heap.elementsCount;
+
+  heap.elements[index] = element;
+  heap.elementsCount++;
+
+  HeapBubbleUp(heap, index);
+
+  return heap;
+}
+	\end{minted}
+\end{listing}
+
 
 \section{Probublání prvku dolů}
-\label{subsec:bubbledown}
+\label{subsec:HeapBubbleDown}
 
 Probublání prvku haldy dolů je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota pouze jednoho vrcholu.
 
