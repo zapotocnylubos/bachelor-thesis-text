@@ -396,7 +396,7 @@ Rozdělení haldy pro operaci probublání nahoru by mohlo vypadat podobně jak 
 	V grafu vrchního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru. Nemusí ale platit, že je graf vrchního řezu haldy na konci vykonávání funkce prázdný. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do kořene haldy.
+ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru. Nemusí ale platit, že graf vrchního řezu pomocí potomka je na konci vykonávání funkce prázdný. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do kořene haldy.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí potomka}
@@ -451,7 +451,7 @@ ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový pod
 	V grafu spodního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL implementace predikátu pro spodní řez haldy pomocí potomka je velmi podobná vrchnímu řezu haldy pomocí potomka. Pokrývá ale vrcholy haldy s indexem větším než problematický vrchol a jejich rodičovské vrcholy. Nemusí platit, že graf spodního řezu haldy na konci vykonávání obsahuje celou původní haldu. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do kořene haldy.
+ACSL kód predikátu pro spodní řez haldy pomocí potomka je velmi podobný vrchnímu řezu haldy pomocí potomka. Pokrývá ale vrcholy haldy s indexem větším než problematický vrchol a jejich rodičovské vrcholy. Nemusí platit, že graf spodního řezu pomocí potomka na konci vykonávání obsahuje celou původní haldu. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do kořene haldy.
 
 \begin{listing}[H]
 	\caption{Predikát validního spodního řezu v haldě pomocí potomka}
@@ -468,7 +468,7 @@ ACSL implementace predikátu pro spodní řez haldy pomocí potomka je velmi pod
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{acsl:HeapLowerChildCut} správně odděluje vrcholy, které mají index menší než problematický vrchol. Zároveň ale neomezuje hodnoty rodičovských vrcholů. Proto se do spodního řezu pomocí potomka správně dostane i problematický vrchol a také některé rodičovské vrcholy, které mají menší index než problematický vrchol. Hrana mezi problematickým vrcholem a jeho rodičovským vrcholem zde správně není.
+ACSL kód \ref{acsl:HeapLowerChildCut} správně odděluje vrcholy, které mají index menší než problematický vrchol. Zároveň ale neomezuje hodnoty rodičovských vrcholů. Proto se do spodního řezu pomocí potomka správně dostane i problematický vrchol a také některé rodičovské vrcholy, které mají menší index než problematický vrchol. Hrana mezi problematickým vrcholem a jeho rodičovským vrcholem zde správně není.
 
 Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haly. Tato vlastnost je automaticky splněna pro všechny hrany s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto do kódu zavádíme vstupní podmínku a invariantu cyklu, které kontrolují, zda platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
 
@@ -576,7 +576,7 @@ Heap HeapInsert(Heap heap, HeapElement element) {
 	\end{minted}
 \end{listing}
 
-ACSL anotace probublání dolů zajišťují, že po dokončení algoritmu je předaná halda validní. Haldové uspořádání tedy po dokončení probublání nahoru platí v celé haldě. Jelikož je volání probublání nahoru poslední akcí algoritmu vložení prvku, lze ujištění validnosti haldy algoritmus vložit také do anotace algoritmu vkládání prvku. Tímto je zaručena korektnost algoritmu vkládání prvku do haldy.
+ACSL anotace algoritmu probublání dolů zajišťují, že po dokončení algoritmu je předaná halda validní. Haldové uspořádání tedy po dokončení probublání nahoru platí v celé haldě. Jelikož je volání probublání nahoru poslední akcí algoritmu vložení prvku, lze ujištění validnosti haldy algoritmus vložit také do anotace algoritmu vkládání prvku. Tímto je zaručena korektnost algoritmu vkládání prvku do haldy.
 
 \begin{figure}[H]
 	\centering
@@ -591,7 +591,32 @@ ACSL anotace probublání dolů zajišťují, že po dokončení algoritmu je p�
 
 Probublání prvku haldy směrem dolů (od kořene) je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se zvýšila hodnota pouze toho vrcholu, která má být probublán.
 
-Algoritmus předpokládá, že haldové uspořádání lze porušit maximálně u dvou dvojic vrcholů $u$ a $v$ nebo $u$ a $w$, kde $u$ je rodičovský vrchol vrcholů $v$ a $w$. Tedy v celé haldě s výjimkou těchto dvou dvojic musí platit haldové uspořádání. V těchto dvojicích může platit, že rodič~$u$ má větší hodnotu než některý z jeho potomků. Může nastat situace, kdy rodičovský vrchol $u$ má větší hodnotu než oba jeho pomoci. Dále se předpokládá, že tento algoritmus bude proveden po zvětšení hodnoty některého vrcholu při vytváření haldy. V obou případech je potřeba tento vrchol probublat dolů do správné pozice v haldě. Pokud by se hodnota snížila, měl by být aplikován algoritmus probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
+Algoritmus předpokládá, že haldové uspořádání lze porušit maximálně u dvou dvojic vrcholů $u$ a $v$ nebo $u$ a $w$, kde $u$ je rodičovský vrchol vrcholů $v$ a $w$. Tedy v celé haldě s výjimkou těchto dvou dvojic musí platit haldové uspořádání. V těchto dvojicích může platit, že rodič~$u$~má větší hodnotu než některý z jeho potomků. Může nastat situace, kdy rodičovský vrchol~$u$~má větší hodnotu než oba jeho pomoci. Dále se předpokládá, že tento algoritmus bude proveden po zvětšení hodnoty některého vrcholu nebo při vytváření haldy. V obou případech je potřeba tento vrchol probublat dolů do správné pozice v haldě. Pokud by se hodnota snížila, měl by být aplikován algoritmus probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
+
+
+\begin{listing}[H]
+	\caption{Probublání prvku dolů}
+	\label{list:HeapBubbleDown}
+	\begin{minted}{c}
+void HeapBubbleDown(Heap heap, int index) {
+    int child;
+
+    while (HeapHasChild(heap, index)) {
+        child = HeapLowerChild(heap, index);
+
+        if (HeapElementValue(heap, index) <= HeapElementValue(heap, child)) {
+            break;
+        }
+
+        HeapSwap(heap, index, child);
+
+        index = child;
+    }
+}
+	\end{minted}
+\end{listing}
+
+Pro důkaz korektnosti tohoto algoritmu jsou požity \textit{řezy} haldou, podobné řezům použitých pro důkaz korektnosti probublání nahoru popsané v sekci \ref{subsec:HeapBubbleUp}. Řezy haldou pro důkaz probublání dolů jsou mírně odlišné od řezů v důkazu korektnosti algoritmu probublání nahoru, jelikož řezy haldou pomocí rodiče povolují až dvě problematické hrany v haldě.
 
 \begin{definition}[Vrchní řez haldy pomocí rodiče]
 	Mějme graf $G = (V, E)$ reprezentující binární haldu a~$i \in \mathbb{N}$.
@@ -637,14 +662,19 @@ Algoritmus předpokládá, že haldové uspořádání lze porušit maximálně 
 	V grafu vrchního řezu haldy pomocí rodiče platí haldové uspořádání.
 \end{remark}
 
-ACSL kód popisující vrchní řez haldy pomocí rodiče nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání dolů a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Nemusí ale platit, že graf vrchního řezu haldy na konci vykonávání funkce obsahuje celou původní haldu. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do vrcholu s maximálním indexem v haldě. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání dolů.
+ACSL kód popisující vrchní řez haldy pomocí rodiče nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání dolů a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Nemusí ale platit, že graf vrchního řezu pomocí rodiče na konci vykonávání funkce obsahuje celou původní haldu. Tato situace by nastala pouze v případě, že byl problematický vrchol probublán až do vrcholu s maximálním indexem v haldě. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání dolů.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí rodiče}
-	\label{acsl:HeapUpperChildCut}
+	\label{acsl:HeapUpperParentCut}
 	\begin{minted}{c}
 /*@
-  predicate 
+  predicate HeapUpperParentCut(Heap heap, integer index) =
+    \forall integer ancestor, descendant;
+      0 <= ancestor < index
+      && ancestor < descendant < HeapElementsCount(heap)
+      && IsParent(ancestor, descendant) ==>
+        HasHeapProperty(heap, ancestor, descendant);
 */
 	\end{minted}
 \end{listing}
@@ -693,25 +723,19 @@ ACSL kód popisující vrchní řez haldy pomocí rodiče nevytváří nový pod
 	V grafu spodního řezu haldy pomocí rodiče platí haldové uspořádání.
 \end{remark}
 
+
 \begin{listing}[H]
-	\caption{Probublání prvku dolů}
-	\label{list:bubbledown}
+	\caption{Predikát validního spodního řezu v haldě pomocí rodiče}
+	\label{acsl:HeapUpperParentCut}
 	\begin{minted}{c}
-void HeapBubbleDown(Heap heap, int index) {
-  int child;
-
-  while (HeapHasChild(heap, index)) {
-    child = HeapLowerChild(heap, index);
-
-    if (HeapElementValue(heap, index) <= HeapElementValue(heap, child)) {
-      break;
-    }
-
-    HeapSwap(heap, index, child);
-
-    index = child;
-  }
-}
+/*@
+  predicate HeapLowerParentCut(Heap heap, integer index) =
+    \forall integer ancestor, descendant;
+      index < ancestor < HeapElementsCount(heap)
+      && ancestor < descendant < HeapElementsCount(heap)
+      && IsParent(ancestor, descendant) ==>
+        HasHeapProperty(heap, ancestor, descendant);
+*/
 	\end{minted}
 \end{listing}
 
