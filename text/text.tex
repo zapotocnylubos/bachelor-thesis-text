@@ -297,6 +297,7 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis.
 
 \section{Hledání minimálního prvku}
+\label{subsec:HeapFindMin}
 
 \section{Probublání prvku nahoru}
 \label{subsec:HeapBubbleUp}
@@ -759,6 +760,87 @@ Základní i striktní typ vstupu je možné dokázat najednou pomocí ACSL kons
 
 \section{Odstranění minimálního prvku}
 \label{subsec:HeapExtractMin}
+
+Datová struktura halda slouží jako prioritní fronta. Kořen haldy vždy obsahuje vrchol s nejmenší hodnotou. Algoritmy, které haldu využívají jako prioritní frontu, potřebují tento minimální prvek najít a odstranit z fronty. Hledání minimálního prvku zajišťuje algoritmus popsaný v sekci \ref{subsec:HeapFindMin}. Algoritmus odstranění minimálního prvku a důkaz korektnosti je popsán v této sekci.
+
+Odstranění minimálního prvku z haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ odstraní daný vrchol z haldy a v čase $\mathcal{O}(\log(n))$ opraví haldové uspořádání. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
+
+Kořen haldy lze bezproblémově odstranit pouze v případě, když je kořen jediný prvek v haldě. Pokud má kořen nějaké potomky, odstraněním kořene by se porušil tvar haldy.
+
+\begin{remark}
+Z haldy lze odstranit prvek s největším indexem, bez toho, aby se porušil tvar haldy.
+\end{remark}
+
+Algoritmus v prvním kroku vymění hodnotu uleženou v kořeni haldy s hodnotou uloženou ve vrcholu s největším indexem. Ve druhém kroku vrchol s největším indexem odstraní z haldy. Poslední krok algoritmu je probublání dolů kořene haldy.
+
+Výměnou hodnoty v kořeni haldy a na největším indexu mohlo dojít k porušení haldového uspořádání. Algoritmus probublání má tři vstupní podmínky, pokud chceme získat haldové uspořádání v celé haldě. Horní řez haldou pomocí rodiče je triviálně splněn, jelikož se v případě probublání kořene jedná o prázdný graf. Spodní řez haldou obsahuje všechny vrcholy bez kořene a všechny hrany, na kterých neleží kořen. Jelikož v původní haldě před výměnou hodnoty kořene za hodnotu z vrcholu s největším indexem platilo haldové uspořádání, v podgrafu vytvořeným spodním řezem pomocí rodiče musí platit haldové uspořádání také. Tranzitivní haldové uspořádání triviálně platí, jelikož kořen nemá žádného rodiče.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,draw,ultra thick] (0) {8}
+		child { node [circle,draw=blue,fill=cyan!15] (1) {4}
+			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (3) {6}
+				child { node [circle,draw,fill=cyan!15] (7) {9} }
+				child { node [circle,draw,fill=cyan!15] (8) {8} }
+			}
+			child[thick,draw=blue] { node [circle,draw,,fill=cyan!15] (4) {5}
+				child { node [circle,draw,fill=cyan!15] (9) {7} }
+				child[draw=black,dotted] { node [circle,draw] (10) {1} }
+			}
+		}
+		child { node [circle,draw=blue,fill=cyan!15] (2) {5}
+			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (5) {7} }
+			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka spodního řezu haldy pomocí rodiče v průběhu odstraňování minimálního prvku}
+	\label{img:heap-extract-min-heap-lower-parent-cut}
+\end{figure}
+
+Obrázek \ref{img:heap-extract-min-heap-lower-parent-cut} zobrazuje stav haldy po výměně hodnoty v kořeni za hodnotu ve vrcholu s~největším indexem. Tečkovaně je naznačena hrana a vrchol, které se v rámci algoritmu odstraňují a tučně je zvýrazněn nový kořen haldy, který bude v následujícím kroku algoritmu probublán dolů.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace odstranění minimálního prvku z haldy}
+	\label{code:HeapExtractMin}
+	\begin{minted}{c}
+/*@
+    requires 0 < HeapElementsCount(heap);
+    requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+    requires ValidHeap(heap);
+
+    assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+
+    ensures count_decrease: HeapElementsCount(\result) == HeapElementsCount(heap) - 1;
+    ensures ValidHeap(\result);
+*/
+Heap HeapExtractMin(Heap heap) {
+    int last = heap.elementsCount - 1;
+
+    HeapSwap(heap, 0, last);
+
+    heap.elementsCount--;
+
+    if (0 < heap.elementsCount) {
+        HeapBubbleDown(heap, 0);
+    }
+
+    return heap;
+}
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{code:HeapExtractMin} zobrazuje kompletní kód odstranění minimálního prvku z haldy společně s ACSL anotacemi. Vstupní podmínka pro volání funkce odstranění minimálního prvku je nenulový počet prvků v haldě a haldové uspořádání v haldě. Výstupní anotace zajišťují, že funkce zmenšuje počet prvků v haldě a také, že ve zmenšené haldě stále platí haldové uspořádání.
+
+Implementace tohoto algoritmu odhalila, že pro volání probublání dolů kořene je nutné v haldě po odstranění prvku s maximálním indexem alespoň jeden prvek stále mít. Některé pseudokódy tento krok nezohledňují. Tato chyba byla pomocí ACSL odhalena a bylo ji možné ihned opravit a dokončit důkaz korektnosti. Obrázek \ref{img:F-C-HeapExtractMin} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu odstranění minimálního prvku z haldy.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-HeapExtractMin}
+	\caption{Úspešné dokončení důkazu odstranění minimálního prvku z haldy v prostředí Frama-C}
+	\label{img:F-C-HeapExtractMin}
+\end{figure}
+
 
 \section{Změna hodnoty vrcholu}
 \label{subsec:HeapChange}
