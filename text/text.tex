@@ -845,8 +845,51 @@ Implementace tohoto algoritmu odhalila, že pro volání probublání dolů koř
 \section{Změna hodnoty vrcholu}
 \label{subsec:HeapChange}
 
+Algoritmy, které využívají binární minimovou haldu mohou měnit hodnotu jednotlivých vrcholů haldy. Jedná se o změnu priority prvku, který je v haldě jednoznačně identifikovatelný. Funkce pro změnu hodnoty využívá dvě oddělené funkce, funkci pro snížení hodnoty vrcholu a funkci pro zvýšení hodnoty vrcholu.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace změny hodnoty prvku haldy}
+	\label{code:HeapChange}
+	\begin{minted}{c}
+/*@
+    requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+    requires 0 <= index < HeapElementsCount(heap);
+    requires ValidHeap(heap);
+
+    assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+
+    ensures value_changed:
+        \exists integer i;
+            0 <= i < HeapElementsCount(heap) ==>
+                HeapElementValue(element) == HeapElementValue(heap, i);
+    ensures ValidHeap(heap);
+*/
+void HeapChange(Heap heap, int index, HeapElement element) {
+    if (_HeapElementValue(element) < HeapElementValue(heap, index)) {
+        HeapDecrease(heap, index, element);
+        return;
+    }
+
+    HeapIncrease(heap, index, element);
+}
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{code:HeapChange} zobrazuje tělo funkce, která pomocí kontroly aktuální hodnoty vrcholu v haldě a požadované nové hodnotě prvku volá funkci pro zmenšení hodnoty prvku nebo zvětšení hodnoty prvku. Obě zmíněné funkce zajišťují změnu hodnoty vrcholu haldy a následné opravení haldového uspořádání, které se mohlo narušit změnou hodnoty prvku. Jelikož je volání těchto funkcí poslední akce ve funkci pro změnu hodnoty prvku v haldě, lze přidat stejné anotace pro ujištění o změně hodnoty prvku a opravení haldového uspořádání do anotace funkce o změně hodnoty prvku v haldě.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-HeapChange}
+	\caption{Úspešné dokončení důkazu změny hodnoty prvku haldy v prostředí Frama-C}
+	\label{img:F-C-HeapChange}
+\end{figure}
+
+Výpis kódu \ref{code:HeapChange} zobrazuje úspěšné dokončení důkazu korektnosti funkce pro změnu hodnoty prvku v haldě. Následné je vhodné dokázat korektnost jednotlivých funkcí pro snížení hodnoty prvku v haldě a pro zvýšení prvku v haldě.
+
 \subsection{Snížení hodnoty vrcholu}
 \label{subsec:HeapDecrease}
+
+
 
 \subsection{Zvýšení hodnoty vrcholu}
 \label{subsec:HeapIncrease}
