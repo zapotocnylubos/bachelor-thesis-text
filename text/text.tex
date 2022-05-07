@@ -299,6 +299,78 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hen
 \section{Hledání minimálního prvku}
 \label{subsec:HeapFindMin}
 
+Hledání minimálního prvku je operace nad haldou, která dokáže v čase $\mathcal{O}(1))$ nalézt prvek v haldě s minimální hodnotou.
+
+Haldové uspořádání zajišťuje, že hodnota v rodičovském vrcholu je vždy menší nebo rovna hodnotě ve vrcholu potomka daného vrcholu. Haldové uspořádání je relací částečného uspořádání, proto v této relaci platí tranzitivita. Kořen haldy tudíž obsahuje minimální prvek z celé haldy.
+
+Nalezení minimálního prvku znamená získat prvek v haldě implementované polem na indexu kořene.
+
+\begin{listing}[H]
+	\caption{Hledání minimálního prvku}
+	\label{list:HeapFindMin}
+	\begin{minted}{c}
+/*@
+  requires 0 < HeapElementsCount(heap);
+  requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+  requires ValidHeap(heap);
+
+  assigns \nothing;
+
+  ensures extreme_exists:
+    \exists integer i;
+      0 <= i < HeapElementsCount(heap) ==>
+        \result == HeapElements(heap)[i];
+
+  ensures correct_extreme:
+    \forall integer i;
+      0 < i < HeapElementsCount(heap) ==>
+        HasHeapProperty(heap, 0, i);
+*/
+HeapElement HeapFindMin(Heap heap) {
+  return heap.elements[0];
+}
+	\end{minted}
+\end{listing}
+
+Haldu je možné pomocí operace odstranění minimálního prvku popsaného v sekci \ref{subsec:HeapExtractMin} úplně vyprázdnit. Výpis kódu \ref{list:HeapFindMin} obsahuje ACSL vstupní podmínku, která kontroluje, že funkce může být volána pouze za předpokladu, že v haldě existuje alespoň jeden prvek.
+
+ACSL anotace také zajišťují, že nalezený prvek je doopravdy minimálním prvek z celé haldy. Pro dokončení důkazu korektnosti byl zaveden axiom o existenci minimálního prvku, který zobrazuje výpis kód \ref{acsl:axiom_root_is_extreme}. Celá implementace korektní binární minimové haldy využívá pouze \textit{alt-ergo}~a~\textit{cvc4} externí dokazovací nástroje. Tyto nástroje nejsou tento axiom schopny dokázat. \textit{Z3} externí dokazovací nástroj je schopný tento axiom dokázat, ale jelikož by jeho využití bylo opodstatněné pouze v tomto případě, byl zaveden tento axiom místo lemma. Tento axiom následné pomáhá při dokončení důkazu korektnosti algoritmu hledání minimálního prvku v haldě.
+
+\begin{listing}[H]
+	\caption{Hledání minimálního prvku}
+	\label{acsl:axiom_root_is_extreme}
+	\begin{minted}{c}
+/*@
+  // alt-ergo or cvc4 are not able to prove this implication on more
+  // than ~80 elements. Z3 is able to prove this implication, but
+  // havind no need for Z3 in whole codebase, axiom was chosen to keep
+  // code simplified
+
+  axiomatic heap_structure_and_heap_property {
+    axiom root_is_extreme:
+      \forall Heap heap;
+        ValidHeap(heap) ==>
+          \forall integer index;
+            0 <= index < HeapElementsCount(heap) ==>
+              HasHeapProperty(heap, 0, index);
+  }
+*/
+	\end{minted}
+\end{listing}
+
+Axiom ve výpisu kódu \ref{acsl:axiom_root_is_extreme} zajišťuje, že pokud platí v haldě haldové uspořádání, tak kořen haldy obsahuje minimální prvek.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-HeapFindMin}
+	\caption{Úspešné dokončení důkazu hledání minimálního prvku v prostředí Frama-C}
+	\label{img:F-C-HeapFindMin}
+\end{figure}
+
+Na obrázku \ref{img:F-C-HeapFindMin} je vidět úspěšně dokončený důkaz korektnosti hledání minimálního prvku v haldě.
+
+Ostatní funkce a anotace v implementaci binární haldy nevyužívají axiomy a lze dokázat jejich korektnost pomocí nástrojů \textit{alt-ergo} nebo \textit{cvc4}.
+
 \section{Probublání prvku nahoru}
 \label{subsec:HeapBubbleUp}
 
