@@ -294,7 +294,88 @@ Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
 \chapter{Implementace důkazu binární haldy}
 %---------------------------------------------------------------
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sagittis hendrerit ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue. Donec ipsum massa, ullamcorper in, auctor et, scelerisque sed, est. In sem justo, commodo ut, suscipit at, pharetra vitae, orci. Pellentesque pretium lectus id turpis.
+Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotlivé vrcholy očíslovat indexy pole. Tato ověřená implementace používá haldu s kořene na indexu $0$. Haldu uloženou v poli lze procházet pomocí těchto pravidel:
+
+\begin{enumerate}
+	\item[] $\Parent(i) = (i - 1) / 2$
+	\item[] $\LeftChild(i) = 2i + 1$
+	\item[] $\RightChild(i) = 2i + 2$
+\end{enumerate}
+
+Haldové uspořádání popisuje ACSL predikát \ref{acsl:ValidHeap}.
+
+\begin{listing}[H]
+	\caption{ACSL predikát validní haldy}
+	\label{acsl:ValidHeap}
+	\begin{minted}{c}
+/*@
+  predicate ValidHeap(Heap heap) =
+    \forall integer ancestor, descendant;
+      0 <= ancestor < descendant < HeapElementsCount(heap)
+      && IsParent(ancestor, descendant) ==>
+        HasHeapProperty(heap, ancestor, descendant);
+*/
+	\end{minted}
+\end{listing}
+
+Důkazy korektnosti byly provedeny v prostředí Frama-C 24.0 (Chromium) za použití externích dokazovacích nástrojů Alt-Ergo 2.2.0 a CVC4 1.7.
+
+Výsledná implementace binární minimové haldy obsahuje 488 cílů pro důkaz korektnosti, splňuje korektní chování při použití RTE anotací a neobsahuje kontradikci ve vstupních podmínkách a nedosažitelný kód. RTE anotace se generují až při spuštění kontroly korektnosti pomocí přepínače "-rte". Kontradikce vstupních podmínek může způsobit úspěšné dokázání funkce, která ale nikdy nepůjde spustit, jelikož nelze splnit dané vstupní podmínky. Tuto kontrolu provádí "Smoke tests", které se spouštějí přepínačem "-wp-smoke-tests".
+
+Kompletní důkaz celé knihovny binární minimové haldy lze spustit příkazem zobrazeným ve výpisu kódu \ref{shell:run-frama-c-proofs}.
+
+\begin{listing}[H]
+	\caption{Příkaz pro spuštění kompletního důkazu knihovny binární minimové haldy}
+	\label{shell:run-frama-c-proofs}
+	\begin{minted}{sh}
+frama-c -rte -wp -wp-prover alt-ergo,cvc4 \
+  -wp-par 8 -wp-cache none -wp-timeout 30 \
+  -wp-smoke-tests -wp-smoke-timeout 30 \
+  src/min_heap.c
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{shell:run-frama-c-proofs-output} zobrazuje výsledek provedení kopletního formálního důkazu knihovny binární minimové haldy. Tento výpis zobrazuje seznam všech funkcí, ve kterých byly vygenerované RTE automatické anotace společně s počtem nalezených cílů, které mají být v průběhu provádění důkazu korektnosti splněny. Knihovna splňuje všechny zapsané a vygenerované cíle. Výsledkem je tedy korektní implementace binární minimové haldy.
+
+\begin{listing}[H]
+	\caption{Výstup spuštění kompletního důkazu knihovny binární minimové haldy}
+	\label{shell:run-frama-c-proofs-output}
+	\begin{minted}{text}
+...
+[rte] annotating function HeapBubbleDown
+[rte] annotating function HeapBubbleUp
+[rte] annotating function HeapBuild
+[rte] annotating function HeapChange
+[rte] annotating function HeapDecrease
+[rte] annotating function HeapElementValue
+[rte] annotating function HeapExternalNodeCount
+[rte] annotating function HeapExtractMin
+[rte] annotating function HeapFindMin
+[rte] annotating function HeapHasBothChildren
+[rte] annotating function HeapHasChild
+[rte] annotating function HeapHasLeftChild
+[rte] annotating function HeapHasParent
+[rte] annotating function HeapHasRightChild
+[rte] annotating function HeapIncrease
+[rte] annotating function HeapInsert
+[rte] annotating function HeapInternalNodeCount
+[rte] annotating function HeapLeftChild
+[rte] annotating function HeapLowerChild
+[rte] annotating function HeapParent
+[rte] annotating function HeapRightChild
+[rte] annotating function HeapSwap
+[rte] annotating function _HeapElementValue
+[rte] annotating function swapHeapElements
+[rte] annotating function swapi
+[wp] 488 goals scheduled
+[wp] Proved goals:  488 / 488
+  Qed:             207  (0.30ms-7ms-121ms)
+  Alt-Ergo 2.2.0:  242  (20ms-30s) (9312) (failed: 2)
+  CVC4 1.7:        185  (30ms-8.8s-30s) (957095)
+	\end{minted}
+\end{listing}
+
+Jednotlivé hlavní funkce jsou popsány v následujících kapitolách. Kompletní kód knihovny je přiložen na médiu společně s konfigurací Docker prostředí pro spuštění grafického prostředí Frama-C.
 
 \section{Hledání minimálního prvku}
 \label{subsec:HeapFindMin}
