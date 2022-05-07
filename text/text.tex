@@ -755,7 +755,7 @@ Základní i striktní typ vstupu je možné dokázat najednou pomocí ACSL kons
 	\centering
 	\includegraphics[width=9cm]{images/frama-c-HeapBubbleDown}
 	\caption{Úspešné dokončení důkazu probublání dolů v prostředí Frama-C}
-	\label{img:F-C-HeapBubbleUp}
+	\label{img:F-C-HeapBubbleDown}
 \end{figure}
 
 \section{Odstranění minimálního prvku}
@@ -805,27 +805,27 @@ Obrázek \ref{img:heap-extract-min-heap-lower-parent-cut} zobrazuje stav haldy p
 	\label{code:HeapExtractMin}
 	\begin{minted}{c}
 /*@
-    requires 0 < HeapElementsCount(heap);
-    requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
-    requires ValidHeap(heap);
+  requires 0 < HeapElementsCount(heap);
+  requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+  requires ValidHeap(heap);
 
-    assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+  assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
 
-    ensures count_decrease: HeapElementsCount(\result) == HeapElementsCount(heap) - 1;
-    ensures ValidHeap(\result);
+  ensures count_decrease: HeapElementsCount(\result) == HeapElementsCount(heap) - 1;
+  ensures ValidHeap(\result);
 */
 Heap HeapExtractMin(Heap heap) {
-    int last = heap.elementsCount - 1;
+  int last = heap.elementsCount - 1;
 
-    HeapSwap(heap, 0, last);
+  HeapSwap(heap, 0, last);
 
-    heap.elementsCount--;
+  heap.elementsCount--;
 
-    if (0 < heap.elementsCount) {
-        HeapBubbleDown(heap, 0);
-    }
+  if (0 < heap.elementsCount) {
+    HeapBubbleDown(heap, 0);
+  }
 
-    return heap;
+  return heap;
 }
 	\end{minted}
 \end{listing}
@@ -842,7 +842,7 @@ Implementace tohoto algoritmu odhalila, že pro volání probublání dolů koř
 \end{figure}
 
 
-\section{Změna hodnoty vrcholu}
+\section{Změna hodnoty prvku}
 \label{subsec:HeapChange}
 
 Algoritmy, které využívají binární minimovou haldu mohou měnit hodnotu jednotlivých vrcholů haldy. Jedná se o změnu priority prvku, který je v haldě jednoznačně identifikovatelný. Funkce pro změnu hodnoty využívá dvě oddělené funkce, funkci pro snížení hodnoty vrcholu a funkci pro zvýšení hodnoty vrcholu.
@@ -852,25 +852,25 @@ Algoritmy, které využívají binární minimovou haldu mohou měnit hodnotu je
 	\label{code:HeapChange}
 	\begin{minted}{c}
 /*@
-    requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
-    requires 0 <= index < HeapElementsCount(heap);
-    requires ValidHeap(heap);
+  requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+  requires 0 <= index < HeapElementsCount(heap);
+  requires ValidHeap(heap);
 
-    assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+  assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
 
-    ensures value_changed:
-        \exists integer i;
-            0 <= i < HeapElementsCount(heap) ==>
-                HeapElementValue(element) == HeapElementValue(heap, i);
-    ensures ValidHeap(heap);
+  ensures value_changed:
+    \exists integer i;
+      0 <= i < HeapElementsCount(heap) ==>
+        HeapElementValue(element) == HeapElementValue(heap, i);
+  ensures ValidHeap(heap);
 */
 void HeapChange(Heap heap, int index, HeapElement element) {
-    if (_HeapElementValue(element) < HeapElementValue(heap, index)) {
-        HeapDecrease(heap, index, element);
-        return;
-    }
+  if (_HeapElementValue(element) < HeapElementValue(heap, index)) {
+    HeapDecrease(heap, index, element);
+    return;
+  }
 
-    HeapIncrease(heap, index, element);
+  HeapIncrease(heap, index, element);
 }
 	\end{minted}
 \end{listing}
@@ -886,16 +886,194 @@ Výpis kódu \ref{code:HeapChange} zobrazuje tělo funkce, která pomocí kontro
 
 Výpis kódu \ref{code:HeapChange} zobrazuje úspěšné dokončení důkazu korektnosti funkce pro změnu hodnoty prvku v haldě. Následné je vhodné dokázat korektnost jednotlivých funkcí pro snížení hodnoty prvku v haldě a pro zvýšení prvku v haldě.
 
-\subsection{Snížení hodnoty vrcholu}
+\begin{listing}[H]
+	\caption{Datová struktura prvku haldy}
+	\label{code:HeapElement}
+	\begin{minted}{c}
+typedef struct _HeapElement {
+  int index;
+
+  int id;
+  int value;
+} HeapElement;
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{code:HeapElement} zobrazuje datovou strukturu prvky haldy. Tato struktura mimo jiné obsahuje aktuálním informaci o indexu daného prvku v haldě, na kterém je daný prvek uložen. Znalost indexu daného prvku umožňuje rychlý přístup k danému prvku v haldě implementované pomocí pole. Úpravu vrcholu je možné provést v čase $\mathcal{O}(1)$ pomocí přímého přístupu na index pole bez nutnosti daný prvek v haldě vyhledávat. 
+
+Aktuální informace o indexu daného prvku v haldě je automaticky aktualizována při jakékoli změně či prohození dvou prvků v haldě, jak je znázorněno na výpisu kódu \ref{code:HeapSwap}.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace prohození dvou prvků v hladě}
+	\label{code:HeapSwap}
+	\begin{minted}{c}
+/*@
+  requires 0 <= a < HeapElementsCount(heap);
+  requires 0 <= b < HeapElementsCount(heap);
+  requires \valid(HeapElements(heap) + a);
+  requires \valid(HeapElements(heap) + b);
+
+  assigns HeapElements(heap)[a], HeapElements(heap)[b];
+
+  ensures indexes_swapped_a:
+    HeapElementIndex(heap, a) == \old(HeapElementIndex(heap, a));
+
+  ensures indexes_swapped_b:
+    HeapElementIndex(heap, b) == \old(HeapElementIndex(heap, b));
+
+  ensures HeapElementId(heap, a) == \old(HeapElementId(heap, b));
+  ensures HeapElementId(heap, b) == \old(HeapElementId(heap, a));
+  ensures HeapElementValue(heap, a) == \old(HeapElementValue(heap, b));
+  ensures HeapElementValue(heap, b) == \old(HeapElementValue(heap, a));
+*/
+void HeapSwap(Heap heap, int a, int b) {
+  if (a != b) {
+    swapi(&(heap.elements[a].index), &(heap.elements[b].index));
+    swapHeapElements(heap.elements + a, heap.elements + b);
+  }
+}
+	\end{minted}
+\end{listing}
+
+\subsection{Snížení hodnoty prvku}
 \label{subsec:HeapDecrease}
 
+Snížení hodnoty prvku haldy je operace nad haldou, která dokáže v čase $\mathcal{O}(1)$ změnit hodnotu vrcholu na daném indexu a následně v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání. Celková časová asymptotická složitost je tedy $\mathcal{O}(\log(n))$.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace snížení hodnoty prvku v hladě}
+	\label{code:HeapDecrease}
+	\begin{minted}{c}
+/*@
+  requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+  requires 0 <= index < HeapElementsCount(heap);
+  requires HeapElementValue(element) <= HeapElementValue(heap, index);
+  requires ValidHeap(heap);
+
+  assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+
+  ensures value_changed:
+    \exists integer i;
+      0 <= i < HeapElementsCount(heap) ==>
+        HeapElementValue(element) == HeapElementValue(heap, i);
+  ensures ValidHeap(heap);
+*/
+void HeapDecrease(Heap heap, int index, HeapElement element) {
+  element.index = index;
+  heap.elements[index] = element;
+
+  HeapBubbleUp(heap, index);
+}
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{code:HeapDecrease} zobrazuje kód a ACSL anotaci funkce pro snížení hodnoty prvku v haldě. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota, která nahrazuje původní hodnotu je doopravdy nižší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání nahoru by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapDecrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu zvýšení hodnoty prvku v haldě.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-HeapDecrease}
+	\caption{Úspešné dokončení důkazu snížení hodnoty prvku haldy v prostředí Frama-C}
+	\label{img:F-C-HeapDecrease}
+\end{figure}
 
 
-\subsection{Zvýšení hodnoty vrcholu}
+\subsection{Zvýšení hodnoty prvku}
 \label{subsec:HeapIncrease}
+
+Zvýšení hodnoty prvku haldy je operace nad haldou, která dokáže v čase $\mathcal{O}(1)$ změnit hodnotu vrcholu na daném indexu a následně v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání. Celková časová asymptotická složitost je tedy $\mathcal{O}(\log(n))$.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace zvýšení hodnoty prvku v hladě}
+	\label{code:HeapIncrease}
+	\begin{minted}{c}
+/*@
+  requires \valid(HeapElements(heap) + (0 .. HeapElementsCount(heap) - 1));
+  requires 0 <= index < HeapElementsCount(heap);
+  requires HeapElementValue(heap, index) <= HeapElementValue(element);
+  requires ValidHeap(heap);
+
+  assigns HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+
+  ensures value_changed:
+    \exists integer i;
+      0 <= i < HeapElementsCount(heap) ==>
+        HeapElementValue(element) == HeapElementValue(heap, i);
+  ensures ValidHeap(heap);
+*/
+void HeapIncrease(Heap heap, int index, HeapElement element) {
+  element.index = index;
+  heap.elements[index] = element;
+
+  HeapBubbleDown(heap, index);
+}
+	\end{minted}
+\end{listing}
+
+Výpis kódu \ref{code:HeapIncrease} zobrazuje kód a ACSL anotaci funkce pro zvýšení hodnoty prvku v haldě. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota, která nahrazuje původní hodnotu je doopravdy vyšší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání dolů by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapIncrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu zvýšení hodnoty prvku v haldě.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-HeapIncrease}
+	\caption{Úspešné dokončení důkazu zvýšení hodnoty prvku haldy v prostředí Frama-C}
+	\label{img:F-C-HeapIncrease}
+\end{figure}
+
 
 \section{Konstrukce haldy}
 \label{subsec:HeapBuild}
+
+Algoritmus konstrukce haldy je prvotní akce, která vytváří strukturu haldy a zajišťuje haldové uspořádání mezi prvky, ze kterých má být halda sestavena.
+
+Implementace pomocí postupného vkládání jednotlivých prvků má časovou složitost $\mathcal{O}(n\log(n))$, jelikož musíme provést algoritmus vložení prvku, který má časovou složitost $\mathcal{O}(\log(n))$ pro každý prvek, ze kterého má být halda sestavena.
+
+Tento algoritmus lze zefektivnit pomocí postupného opravování haldy probubláváním rodičovských vrcholů dolů. Algoritmus postupně zvětšuje podgraf spodního řezu haldou pomocí potomka až do té doby, než daný řez obsahuje všechny prvky, ze kterých měla být halda sestavena. Anotace algoritmus probublání dolů obsahují základní vstupní podmínky pro částečné opravení haldy, které tento postup splňují. Algoritmus sestavení haldy postupně nechává probublat dolů všechny rodičovské vrcholy od největšího index v poli až po kořen.
+
+\begin{listing}[H]
+	\caption{Kód a ACSL anotace zvýšení hodnoty prvku v hladě}
+	\label{code:HeapBuild}
+	\begin{minted}{c}
+/*@
+  requires 0 <= elementsCount <= elementsCapacity;
+  requires \valid(elements + (0 .. elementsCount - 1));
+  requires correctly_indexed:
+    \forall integer i;
+      0 <= i < elementsCount ==>
+        HeapElementIndex(elements[i]) == i;
+
+  assigns elements[0 .. elementsCount - 1];
+
+  ensures count_same: HeapElementsCount(\result) == elementsCount;
+  ensures capacity_same: HeapElementsCapacity(\result) == elementsCapacity;
+  ensures ValidHeap(\result);
+*/
+Heap HeapBuild(HeapElement *elements, int elementsCount, int elementsCapacity) {
+  Heap heap;
+  heap.elements = elements;
+  heap.elementsCount = elementsCount;
+  heap.elementsCapacity = elementsCapacity;
+
+  /*@
+    loop invariant -1 <= index <= ((int)\floor(HeapElementsCount(heap) / 2)) - 1;
+
+    loop invariant partially_valid_heap:
+      \forall integer ancestor, descendant;
+        index < ancestor < descendant < HeapElementsCount(heap)
+        && IsParent(ancestor, descendant) ==>
+          HasHeapProperty(heap, ancestor, descendant);
+
+    loop assigns index, HeapElements(heap)[0 .. HeapElementsCount(heap) - 1];
+    loop variant index;
+  */
+  for (int index = HeapInternalNodeCount(heap) - 1; index >= 0; index--) {
+    HeapBubbleDown(heap, index);
+  }
+
+  return heap;
+}
+	\end{minted}
+\end{listing}
+
+Invarianty cyklu ve výpisu kód \ref{code:HeapBuild} zajišťují haldové uspořádání v spodním řezu haldou pomocí potomka s postupně snižujícím se indexem. Tento index bude po posledním kroku cyklu nastaven na hodnotu $-1$ a invariant spodního řezu haldou pomocí potomka tedy bude obsahovat celou haldu a bude zajišťovat haldové uspořádání v celé haldě.
 
 %---------------------------------------------------------------
 \chapter{Metody ladění při vývoji důkazu}
