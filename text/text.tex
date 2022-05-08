@@ -962,15 +962,81 @@ Heap HeapBuild(HeapElement *elements, int elementsCount, int elementsCapacity) {
 
 Invarianty cyklu ve výpisu kód \ref{code:HeapBuild} zajišťují haldové uspořádání v spodním řezu haldou pomocí potomka s postupně snižujícím se indexem. Tento index bude po posledním kroku cyklu nastaven na hodnotu $-1$ a invariant spodního řezu haldou pomocí potomka tedy bude obsahovat celou haldu a bude zajišťovat haldové uspořádání v celé haldě.
 
-%%---------------------------------------------------------------
-%\chapter{Metody ladění při vývoji důkazu}
-%%---------------------------------------------------------------
-%
-%\section{Zúžení vstupních podmínek}
-%
-%\section{Krokování}
-%
-%\section{Kontradikce}
+%---------------------------------------------------------------
+\chapter{Metody ladění při vývoji důkazu}
+%---------------------------------------------------------------
+
+Důkazní postupy v jazyku ACSL mohou být výrazně odlišené od matematických a formálních důkazů v knihách a publikacích. Při tvorbě nebo přepisu predikátů, konstrukci invariantů cyklů nebo při kontrole vstupních podmínek je výhodné pro vývojáře znát některé techniky, které mohou pomoci odhalit chyby v kódu nebo v důkazech. 
+
+\section{Zúžení vstupních podmínek}
+
+Při návrhu funkce lze definovat vstupní podmínky, které musejí být splněně, aby mohla být daná funkce spuštěna. Tato podmínka může kontrolovat například hodnoty předávaných parametrů. Pokud by funkce zaručovala platnost nějakého tvrzení při dokončení funkce, může nastat situace, že žádný z důkazních nástrojů nebude schopný danou vlastnost ověřit. Pokud se jedná o chybu v kódu nebo anotaci funkce, lze ji snadným způsobem odhalit pomocí zúžení vstupních podmínek.
+
+Mějme definovaný induktivní predikát, který tvoří tranzitivní uzávěr haldového uspořádání v binární minimové haldě. Induktivní predikát má základní podmínky platnosti a následuje induktivně popsaná vlastnost, která může být splněna.
+
+\begin{listing}[H]
+	\caption{Chybný ACSL predikát tranzitivní vlastnosti být potomkem}
+	\label{acsl:IsDescendantFail}
+	\begin{minted}{c}
+/*@
+  inductive IsDescendant(integer descendant, integer ancestor, Heap heap) {
+    case children:
+      \forall integer child, Heap *heap;
+        0 < child < HeapElementsCount(heap) ==>
+          IsDescendant(child, Parent(child), heap);
+
+    case descendants:
+      \forall integer ancestor, element, Heap *heap;
+        0 <= ancestor < element < HeapElementsCount(heap) ==>
+          IsDescendant(ancestor, Parent(element), heap) ==> 
+            IsDescendant(element, ancestor, heap);
+  }
+    \end{minted}
+\end{listing}
+
+Takto zadefinovaný predikát není správně. Pomocí prázdné funkce se vstupní podmínkou platnosti tohoto predikátu a vynuceným počtem vrcholů lze tento predikát testovat. Na obrázku \ref{img:F-C-test-IsDescendantFail} je vidět příklad použití této metody a nalezeným problém v definici predikátu. ACSL správně dokázalo predikát pro vrcholy a jejich přímé potomky, ale již nebylo možné dokázat platnosti predikátu přes více potomků. Tato informace vývojáři naznačuje, že chyba nejspíše nebude v základním případu s platností predikátu u přímých potomků vrcholů, ale bude nejspíše v induktivní části predikátu.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-test-IsDescendantFail}
+	\caption{Neúspešné dokončení kontroly platnosti predikátu  IsDescendant v prostředí Frama-C}
+	\label{img:F-C-test-IsDescendantFail}
+\end{figure}
+
+
+\begin{listing}[H]
+	\caption{Opravený ACSL predikát tranzitivní vlastnosti být potomkem}
+	\label{acsl:IsDescendantSuccess}
+	\begin{minted}{c}
+/*@
+  inductive IsDescendant(integer descendant, integer ancestor, Heap heap) {
+    case children:
+      \forall integer child, Heap *heap;
+        0 < child < HeapElementsCount(heap) ==>
+          IsDescendant(child, Parent(child), heap);
+
+    case descendants:
+      \forall integer ancestor, element, Heap *heap;
+        0 <= ancestor < element < HeapElementsCount(heap) ==>
+          IsDescendant(Parent(element), ancestor, heap) ==> 
+            IsDescendant(element, ancestor, heap);
+  }
+    \end{minted}
+\end{listing}
+
+Predikát zobrazený ve výpisu kódu \ref{acsl:IsDescendantSuccess} obsahuje opravené pořadí argumentů v předpokladu implikace. Korektnosti opravy tohoto predikátu je následně ověřena v původní funkci na obrázku \ref{img:F-C-test-IsDescendantSuccess}. Tento postup napomáhá při hledání konkrétní chyby v definici predikátu nebo funkcí. Při vývoji důkazu binární minimové haldy v této práci byla tato metoda hledání chyby nejčastější.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{images/frama-c-test-IsDescendantSuccess}
+	\caption{Úspešné dokončení kontroly platnosti predikátu  IsDescendant v prostředí Frama-C}
+	\label{img:F-C-test-IsDescendantSuccess}
+\end{figure}
+
+
+\section{Kontradikce}
+
+
 
 
 %\section{Důkazy s referenčními datovými typy}
