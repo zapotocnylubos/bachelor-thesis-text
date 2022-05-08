@@ -9,11 +9,21 @@
 \setcounter{page}{1}
 
 % The following environment can be used as a mini-introduction for a chapter. Use that any way it pleases you (or comment it out). It can contain, for instance, a summary of the chapter. Or, there can be a quotation.
-\begin{chapterabstract}
-	\lipsum[1]
-\end{chapterabstract}
+%\begin{chapterabstract}
+%	\lipsum[1]
+%\end{chapterabstract}
 
+%Software je součástí důležitých systémů jako například ovládací a monitorovací prvky v letadlech, autech či zdravotnických zařízeních. Software dnes provádí bankovní transakce,  zabezpečení a šifrování tajných zpráv. 
 
+Vývoj softwaru počítače doprovází také neúmyslně vznikající chyby. Nejznámější softwarové chyby způsobili například havárii nosné rakety Ariante 5 při zkušebním letu v roce 1996, ztrátu satelitu Mars Climate Orbiter nebo smrt šesti pacientů zdravotnického přístroje Therac-25. Všechny tyto a další podobné případy spojuje chybně naprogramovaný software počítače.
+
+Aktivita, která má za účel minimalizovat výskyt těchto chyb se se nazývá softwarové testování. Principem tohoto testování je vytvořený algoritmus vyzkoušet v kontrolovaném prostředí na velkém množství kombinací vstupních parametrů a zajistit, že kód generuje správné výsledky. Slavný citát Edsgera Wybe Dijkstry říká: "Testováním programu lze prokázat existenci chyby, nikoli její nepřítomnost". V praxi se často používá metoda testování softwaru, která pokrývá pouze podmnožinu všech možných kombinací vstupních parametrů. Tento styl testování softwaru zajišťuje primárně kontrolu funkčnosti při následné modifikaci zdrojového kódu.
+
+Statická analýza kódu kontroluje zdrojový kód algoritmu a z kódu odvozuje některé vlastnosti bez spuštění daného kódu. Formální analýza je rozšířením statické analýzy o možnost definovat vlastnosti vstupních parametrů, výstupních hodnot a možnost provádět induktivní důkazy za pomocí cyklů. 
+
+Základní datová struktura v programování je binární halda. Jedná se o datovou strukturu, která pomocí několika jednoduchých pravidel udržuje uložené prvky v prioritní fronta. Jednotlivé prvky jsou tedy řazeny dle jejich priority. Tato struktura lze následně použít v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu.
+
+Tato práce zkoumá jednotlivé operace nad binární minimovou haldou a vysvětluje postup tvorby formálních důkazů v jazyce ACSL. Cílem práce je vytvoření kompletní softwarové knihovny v programovacím jazyce C implementující operace nad binární minimovou haldou. Cíl práce je všechny operace v této knihovně opatřit ACSL anotacemi a provést formální důkaz korektnosti daných algoritmů v prostředí Frama-C.
 
 %---------------------------------------------------------------
 \chapter{Binární halda}
@@ -1039,6 +1049,7 @@ Predikát zobrazený ve výpisu kódu \ref{acsl:IsDescendantSuccess} obsahuje op
 
 
 
+
 %\section{Důkazy s referenčními datovými typy}
 %
 %V průběhu tvorby autor práce předával datovou strukturu mezi jednotlivými funkcemi pomocí odkazu na paměť. Princip předávání celé datové struktury pomocí odkazu umožňuje minimalizovat počet proměnných na zásobníku a všechny hodnoty ukládá v dynamické části paměti.
@@ -1091,8 +1102,8 @@ Docker a kotejnerové technologie umožňují spouštět kontejnery na společn�
 \markboth{Závěr}{Závěr}
 %---------------------------------------------------------------
 
-Tato práce se zaměřila na problematiku formálního důkazu implementace datové struktury binární minimové haldy. Podařilo se implementovat knihovnu v jazyce C s ACSL anotacemi, pomocí kterých byla dokázána korektnost jednotlivých knihovních funkcí.
+Tato práce se zaměřila na problematiku formálního důkazu implementace datové struktury binární minimové haldy. Podařilo se implementovat knihovnu v jazyce C s ACSL anotacemi, které dokazují korektnost jednotlivých knihovních funkcí. Použitím této knihovny lze psát nové programy, které bude možné kompletně formálně ověřit, jelikož používají formálně ověřenou knihovnu.
 
-Tato korektně implementovaná binární minimová halda byla použita v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu. Rozšířením této práce by mohl být důkaz korektnosti tohoto algoritmu.
+Formálně ověřená implementace binární minimové haldy byla použita v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu. Rozšířením této práce by mohl být důkaz korektnosti tohoto algoritmu. Binární halda byla navržena pro ukládání celočíselných hodnot jednotlivých prvků, další modifikace knihovny by mohla obsahovat rozšíření pro možnost uložení desetinných čísel.
 
-Součástí práce vzniklo také univerzální vývojové prostředí s možností editace kódu a spouštění formálního ověření bez nutnosti instalace těchto programů přímo v operačním systému. Toto vývojové prostředí lze také spustit na vzdáleném počítači (serveru) a editaci kódu a spouštění verifikace programů spouštět pomocí webového prohlížeče vzdáleně.
+Součástí práce také vzniklo univerzální vývojové prostředí s možností editace kódu a spouštění formálního ověření bez nutnosti instalace jednotlivých programů přímo do operačního systému. Toto vývojové prostředí lze spustit na vzdáleném počítači (serveru) a následně editaci kódu a spouštění verifikace programů provádět pomocí webového prohlížeče vzdáleně.
