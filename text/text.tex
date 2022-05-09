@@ -15,13 +15,13 @@
 
 %Software je součástí důležitých systémů jako například ovládací a monitorovací prvky v letadlech, autech či zdravotnických zařízeních. Software dnes provádí bankovní transakce,  zabezpečení a šifrování tajných zpráv. 
 
-Vývoj softwaru počítače doprovází také neúmyslně vznikající chyby. Nejznámější softwarové chyby způsobili například havárii nosné rakety Ariante 5 při zkušebním letu v roce 1996, ztrátu satelitu Mars Climate Orbiter nebo smrt šesti pacientů zdravotnického přístroje Therac-25. Všechny tyto a další podobné případy spojuje chybně naprogramovaný software počítače.
+Vývoj softwaru počítače doprovází také neúmyslně vznikající chyby. Nejznámější softwarové chyby způsobily například havárii nosné rakety Ariane 5 při zkušebním letu v roce 1996, ztrátu satelitu Mars Climate Orbiter nebo smrt šesti pacientů zdravotnického přístroje Therac-25. Všechny tyto a další podobné případy spojuje chybně naprogramovaný software počítače.
 
-Aktivita, která má za účel minimalizovat výskyt těchto chyb se se nazývá softwarové testování. Principem tohoto testování je vytvořený algoritmus vyzkoušet v kontrolovaném prostředí na velkém množství kombinací vstupních parametrů a zajistit, že kód generuje správné výsledky. Slavný citát Edsgera Wybe Dijkstry říká: "Testováním programu lze prokázat existenci chyby, nikoli její nepřítomnost". V praxi se často používá metoda testování softwaru, která pokrývá pouze podmnožinu všech možných kombinací vstupních parametrů. Tento styl testování softwaru zajišťuje primárně kontrolu funkčnosti při následné modifikaci zdrojového kódu.
+Aktivita, která má za účel minimalizovat výskyt těchto chyb se se nazývá softwarové testování. Principem tohoto testování je vyzkoušet naprogramovaný algoritmus v kontrolovaném prostředí na velkém množství kombinací vstupních parametrů a zajistit, že kód generuje správné výsledky. Slavný citát Edsgera Wybe Dijkstry zní: "Testováním programu lze prokázat existenci chyby, nikoli její nepřítomnost". V praxi se často používá metoda testování softwaru, která pokrývá pouze podmnožinu všech možných kombinací vstupních parametrů. Tento styl testování softwaru zajišťuje primárně kontrolu funkčnosti při následné modifikaci zdrojového kódu.
 
-Statická analýza kódu kontroluje zdrojový kód algoritmu a z kódu odvozuje některé vlastnosti bez spuštění daného kódu. Formální analýza je rozšířením statické analýzy o možnost definovat vlastnosti vstupních parametrů, výstupních hodnot a možnost provádět induktivní důkazy za pomocí cyklů. 
+Statická analýza kódu kontroluje zdrojový kód algoritmu a z kódu odvozuje některé vlastnosti bez nutnosti spuštění daného kódu. Formální analýza je rozšířením statické analýzy o možnost definovat vlastnosti vstupních parametrů, výstupních hodnot a možnost provádět induktivní důkazy za pomocí cyklů. Tato metodika testování korektnosti algoritmů bude v této práci aplikována na datovou strukturu binární minimové haldy.
 
-Základní datová struktura v programování je binární halda. Jedná se o datovou strukturu, která pomocí několika jednoduchých pravidel udržuje uložené prvky v prioritní fronta. Jednotlivé prvky jsou tedy řazeny dle jejich priority. Tato struktura lze následně použít v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu.
+Binární minimová halda je základní struktura v programování. Jedná se o datovou strukturu, která pomocí několika jednoduchých pravidel udržuje uložené prvky v prioritní frontě. Jednotlivé prvky jsou tedy řazeny dle jejich priority. Tato struktura lze následně použít v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu.
 
 Tato práce zkoumá jednotlivé operace nad binární minimovou haldou a vysvětluje postup tvorby formálních důkazů v jazyce ACSL. Cílem práce je vytvoření kompletní softwarové knihovny v programovacím jazyce C implementující operace nad binární minimovou haldou. Cíl práce je všechny operace v této knihovně opatřit ACSL anotacemi a provést formální důkaz korektnosti daných algoritmů v prostředí Frama-C.
 
@@ -38,7 +38,7 @@ Tato práce zkoumá jednotlivé operace nad binární minimovou haldou a vysvět
 \chapter{Implementace důkazu binární haldy}
 %---------------------------------------------------------------
 
-Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotlivé vrcholy očíslovat indexy pole. Tato ověřená implementace používá haldu s kořene na indexu $0$. Haldu uloženou v poli lze procházet pomocí těchto pravidel:
+Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotlivé vrcholy očíslovat indexy pole. Tato ověřená implementace používá haldu s kořenem na indexu $0$. Haldu uloženou v poli lze procházet pomocí těchto pravidel:
 
 \begin{enumerate}
 	\item[] $\Parent(i) = (i - 1) / 2$
@@ -46,13 +46,18 @@ Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotliv�
 	\item[] $\RightChild(i) = 2i + 2$
 \end{enumerate}
 
-Haldové uspořádání popisuje ACSL predikát \ref{acsl:ValidHeap}.
+Tyto operace jsou implementované pomocí logických funkcí v ACSL anotacích a zároveň jsou vytvořené ekvivalentní funkce v jazyce C. Velká část použitých logických funkcí nebo predikátu mají také oddělené funkce v jazyce C pro zajištění konzistence s ACSL anotacemi. Některé z nich však nejsou v textu explicitně zmíněné nebo ukázané. Kompletní zdrojový kód knihovny je však k dispozici na přiloženém médiu.
+
+Binární halda musí splňovat tvar haldy a haldové uspořádání. Tvar haldy není v důkazech formálně dokazován, jelikož je použita implementace haldy pomocí pole. Predikát o správném haldovém uspořádání, zobrazený ve výpisu kódu \ref{acsl:ValidHeap}, je základním predikátem, který určuje, zdali v haldě platí haldové uspořádání. Tento predikát je vstupní podmínkou pro některé operace nad haldou a všechny operace nad haldou až na částečnou opravu pomocí probublání dolů, o kterém pojednává sekce \ref{subsec:HeapBubbleDown}, tento predikát splňují také jako výstupní ujištění korektnosti algoritmu.
 
 \begin{listing}[H]
 	\caption{ACSL predikát validní haldy}
 	\label{acsl:ValidHeap}
 	\begin{minted}{c}
 /*@
+  predicate HasHeapProperty(Heap heap, integer parent, integer child) =
+    HeapElementValue(heap, parent) <= HeapElementValue(heap, child);
+
   predicate ValidHeap(Heap heap) =
     \forall integer ancestor, descendant;
       0 <= ancestor < descendant < HeapElementsCount(heap)
@@ -64,9 +69,11 @@ Haldové uspořádání popisuje ACSL predikát \ref{acsl:ValidHeap}.
 
 Důkazy korektnosti byly provedeny v prostředí Frama-C 24.0 (Chromium) za použití externích dokazovacích nástrojů Alt-Ergo 2.2.0 a CVC4 1.7.
 
-Výsledná implementace binární minimové haldy obsahuje 488 cílů pro důkaz korektnosti, splňuje korektní chování při použití RTE anotací a neobsahuje kontradikci ve vstupních podmínkách a nedosažitelný kód. RTE anotace se generují až při spuštění kontroly korektnosti pomocí přepínače "-rte". Kontradikce vstupních podmínek může způsobit úspěšné dokázání funkce, která ale nikdy nepůjde spustit, jelikož nelze splnit dané vstupní podmínky. Tuto kontrolu provádí "Smoke tests", které se spouštějí přepínačem "-wp-smoke-tests".
+Výsledná implementace binární minimové haldy obsahuje 488 cílů pro důkaz korektnosti, splňuje korektní chování při použití RTE anotací, neobsahuje kontradikci ve vstupních podmínkách a neobsahuje nedosažitelný kód. RTE anotace se generují při spuštění kontroly korektnosti pomocí přepínače "-rte". Kontradikce vstupních podmínek může způsobit úspěšné dokázání korektnosti funkce, která ale nikdy nepůjde spustit, jelikož nelze splnit dané vstupní podmínky. Tuto kontrolu provádí "Smoke tests", které se spouštějí přepínačem "-wp-smoke-tests".
 
-Kompletní důkaz celé knihovny binární minimové haldy lze spustit příkazem zobrazeným ve výpisu kódu \ref{shell:run-frama-c-proofs}.
+Formální důkaz knihovny lze spustit pomocí příkazové řádky nebo pomocí grafického prostředí programu Frama-C. V rámci této práce vznikl konfigurační soubor pro Docker, který umožňuje vývojáři editovat kód, psát ACSL anotace a spouštět formální verifikaci v grafickém prostředí Frama-C, pomocí webového prohlížeče.
+
+Kompletní důkaz celé knihovny binární minimové haldy lze spustit v příkazové řádce příkazem zobrazeným ve výpisu kódu \ref{shell:run-frama-c-proofs}.
 
 \begin{listing}[H]
 	\caption{Příkaz pro spuštění kompletního důkazu knihovny binární minimové haldy}
@@ -1088,7 +1095,7 @@ Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkrat
 
 \section{Docker}
 
-Docker a kotejnerové technologie umožňují spouštět kontejnery na společném jádře operačního systému. Liší se tímto od tradičních virtuálních strojů, které virtualizují jádro daného operačního systémů. Spuštěný kontejner se pomocí \cite{LinuxBible2020}
+Docker a kotejnerové technologie umožňují spouštět kontejnery na společném jádře operačního systému. Liší se tímto od tradičních virtuálních strojů, které virtualizují jádro daného operačního systémů. Spuštěný kontejner se pomocí ... \cite{LinuxBible2020}
 
 \subsection{Reverzní proxy}
 
