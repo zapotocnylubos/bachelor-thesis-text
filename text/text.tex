@@ -29,9 +29,114 @@ Tato práce zkoumá jednotlivé operace nad binární minimovou haldou a vysvět
 \chapter{Binární halda}
 %---------------------------------------------------------------
 
-\begin{definition}[Uložení haldy v poli]
-...
+Tato kapitola shrnuje základní pojmy teorie grafů, které zakládají  teoretické definice pro.
+
+\begin{definition}[Souvislý graf]
+Graf $G = (V, E)$ je souvislý, jestliže v něm pro každé jeho dva vrcholy u, v existuje u-v-cesta.
 \end{definition}
+
+\begin{definition}[Strom]
+Graf $G = (V, E)$ nazveme stromem, pokud je souvislý a neobsahuje žádnou kružnici (čili je acyklický).
+\end{definition}
+
+\begin{definition}[Binární strom]
+Strom nazveme \textit{binární}, pokud je \textit{zakořeněný} a každý vrchol má nejvýše dva
+syny, u nichž rozlišujeme, který je levý a který pravý. Vrcholy rozdělíme podle vzdálenosti
+od kořene do hladin: v nulté hladině leží kořen, v první jeho synové atd.
+\end{definition}
+
+\begin{definition}[Binární minimová halda]
+\textit{Binární minimová halda} je datová struktura tvaru binárního stromu, v jehož
+každém vrcholu je uložen jeden prvek. Přitom platí:
+\begin{enumerate}
+	\item[] Tvar haldy: Všechny hladiny kromě poslední jsou plně obsazené. Poslední hladina je
+zaplněna zleva.
+	\item[] Haldové uspořádání: Je-li $u$ vrchol a $v$ jeho syn, platí: $\Value(u) \leq \Value(v)$.
+\end{enumerate}
+
+\end{definition}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
+		\node [circle,thick,draw] (0) {2}
+		child[thick] { node [circle,draw] (1) {4}
+			child { node [circle,draw] (3) {6}
+				child { node [circle,draw] (7) {9} }
+				child { node [circle,draw] (8) {8} }
+			}
+			child { node [circle,draw] (4) {5}
+				child { node [circle,draw] (9) {7} }
+				child { node [circle,draw] (10) {6} }
+			}
+		}
+		child[thick] { node [circle,draw] (2) {5}
+			child { node [circle,draw] (5) {7}
+				child { node [circle,draw] (11) {8} }
+				child { node [circle,draw] (12) {9} }
+			}
+			child { node [circle,draw] (6) {9} }
+		};
+	\end{tikzpicture}
+	\caption{Ukázka binární minimové haldy}
+	\label{img:heap-example}
+\end{figure}
+
+\pagebreak
+
+Obrázek \ref{img:heap-example} zobrazuje ukázku binární minimové haldy. Haldu lze uložit do lineárního pole, kde kořen haldy je uložen na indexu $0$. Haldu z obrázku \ref{img:heap-example} lze vidět uloženou pomocí pole na obrázku \ref{img:heap-example-array}. Průchod haldou lze realizovat následujícími aritmetickými operacemi:
+
+\begin{enumerate}
+	\item[] $\Parent(i) = (i - 1) / 2$
+	\item[] $\LeftChild(i) = 2i + 1$
+	\item[] $\RightChild(i) = 2i + 2$
+\end{enumerate}
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+	\matrix (m) [matrix of nodes,
+	             nodes={draw, minimum size=8mm,anchor=center},
+	             nodes in empty cells, minimum height = 1cm,
+	             row 1/.style={nodes={draw=none}},]
+	{
+	  0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12  \\
+	  2 & 4 & 5 & 6 & 5 & 7 & 9 & 9 & 8 & 7 & 6 & 8 & 9 \\
+	};
+	\end{tikzpicture}
+	\caption{Ukázka uložení binární minimové haldy v poli}
+	\label{img:heap-example-array}
+\end{figure}
+
+%---------------------------------------------------------------
+\chapter{ACSL a verifikační prostředí}
+%---------------------------------------------------------------
+
+\section{ACSL}
+
+ACSL je akronym pro "ANSI/ISO C Specification Language". Algortmy v jazyce C lze anotovat pomocí jazyka ACSL a následně provádět statickou a formální verifikaci korektnosti daného kódu. Anotace je speciální typ komentáře v jazyce C, který začíná znakem '@'. Tedy '//@' pro jednořádkové definice a '/*@' pro víceřádkové definice. \cite{ACSLSpecification117}
+
+Mezi časté anotace patří kontrakt funkce, který se nachází před deklarací funkce a popisuje chování funkce. Popisuje pravidla, které vstupní argumenty musejí splňovat, dále popisuje místa v paměti, které funkce může měnit a také popisuje vlastnosti proměnných, části paměti či návratové hodnoty, které platí po ukončení běhu funkce. Další důležitou anotací je invariant cyklu, který pomáhá deduktivní analýze dokončit induktivní důkaz platnosti nějaké vlastnosti, plynoucí z průběhu cyklu.
+
+Popis vlastností lze seskupit pod predikát. Lze tedy založit nový predikát reprezentující nějakou vlastnost parametrů daného predikátu a následně ve zdrojovém kódu používat pouze tento predikát. \cite{ACSLSpecification117}
+
+
+\subsection{WP}
+
+\textit{Weakest precodition} plugin verifikačního prostředí Frama-C používá externí rozhodovací procedury pro dokázání ACSL anotací daných funkcí v programovacím jazyce C. \cite{FramaC24WPManual}
+
+Hoareova trojice je způsob popisu algoritmů, který popisuje  výstupní vlastnosti proměnných, paměti a návratové hodnoty po provedení algoritmu, za předpokladu, že vstupní podmínky byly splněny. Obecně lze takovou trojici zapsat jako "{P} stmt {Q}". Kde \textit{P} jsou vstupní podmínky algoritmu, \textit{stmt} je obsah funkce implementující daný algoritmus a \textit{Q} jsou výstupní vlastnosti, které budou po ukončení volání funkce zajištěny. \cite{FramaC24WPManual}
+
+\subsection{RTE}
+
+\textit{Runtime Error Annotation Generation} plugin verifikačního prostředí Frama-C automaticky generuje ACSL anotace pro běžné chyby, které se mohou vyskytnou až při běhu programu. Například dělení nulou, přetečení číselného typu nebo přístup či zápis na nepovolené místo v paměti počítače. \cite{FramaC24RTEManual}
+
+RTE anotace nemusejí být součástí zdrojového kódu, ale mohou být vygenerovány až při spuštění grafického prostředí nebo pomocí příkazové řádky za pomocí přepínače "-rte".
+
+
+\subsection{Smoke testy}
+
+\textit{Smoke} testy jsou součástí speciální kontroly zdrojového kódu pomocí statické analýzy. Vstupní podmínky definované anotacemi ACSL mohou zapříčinit, že Frama-C a WP plugin dokáží dokončit formální důkaz některé vlastnosti algoritmu, které není možné dosáhnout, jelikož jsou vstupní podmínky nesplnitelné. Základním postupem pro kontrolu nesplnitelnosti vstupních podmínek je kontrola vstupních podmínek a invariantů cyklů za pomoci testu dokazatelnosti kontradikce. Pokud WP dokáže v některém bodě důkazu úspěšně dokázat splnitelnost false, testy selhávají s chybovou hláškou. \cite{FramaC24WPManual}
 
 
 %---------------------------------------------------------------
@@ -71,7 +176,7 @@ Důkazy korektnosti byly provedeny v prostředí Frama-C 24.0 (Chromium) za pou�
 
 Výsledná implementace binární minimové haldy obsahuje 488 cílů pro důkaz korektnosti, splňuje korektní chování při použití RTE anotací, neobsahuje kontradikci ve vstupních podmínkách a neobsahuje nedosažitelný kód. RTE anotace se generují při spuštění kontroly korektnosti pomocí přepínače "-rte". Kontradikce vstupních podmínek může způsobit úspěšné dokázání korektnosti funkce, která ale nikdy nepůjde spustit, jelikož nelze splnit dané vstupní podmínky. Tuto kontrolu provádí "Smoke tests", které se spouštějí přepínačem "-wp-smoke-tests".
 
-Formální důkaz knihovny lze spustit pomocí příkazové řádky nebo pomocí grafického prostředí programu Frama-C. V rámci této práce vznikl konfigurační soubor pro Docker, který umožňuje vývojáři editovat kód, psát ACSL anotace a spouštět formální verifikaci v grafickém prostředí Frama-C, pomocí webového prohlížeče.
+Formální důkaz knihovny lze spustit pomocí příkazové řádky nebo pomocí grafického prostředí programu Frama-C. V rámci této práce vznikl konfigurační soubor pro Docker, který umožňuje vývojáři editovat kód, psát ACSL anotace a spouštět formální verifikaci v grafickém prostředí Frama-C pomocí webového prohlížeče.
 
 Kompletní důkaz celé knihovny binární minimové haldy lze spustit v příkazové řádce příkazem zobrazeným ve výpisu kódu \ref{shell:run-frama-c-proofs}.
 
@@ -126,20 +231,20 @@ Výpis kódu \ref{shell:run-frama-c-proofs-output} zobrazuje výsledek proveden�
 	\end{minted}
 \end{listing}
 
-Jednotlivé hlavní funkce jsou popsány v následujících kapitolách. Kompletní kód knihovny je přiložen na médiu společně s konfigurací Docker prostředí pro spuštění grafického prostředí Frama-C.
+Jednotlivé hlavní funkce jsou popsány v následujících kapitolách. Kompletní kód knihovny je přiložen na médiu společně s konfigurací Docker vývojového prostředí.
 
 \section{Hledání minimálního prvku}
 \label{subsec:HeapFindMin}
 
-Hledání minimálního prvku je operace nad haldou, která dokáže v čase $\mathcal{O}(1))$ nalézt prvek v haldě s minimální hodnotou.
+Hledání minimálního prvku je operace nad haldou, která dokáže v čase $\mathcal{O}(1))$ nalézt prvek s minimální hodnotou v haldě.
 
-Haldové uspořádání zajišťuje, že hodnota v rodičovském vrcholu je vždy menší nebo rovna hodnotě ve vrcholu potomka daného vrcholu. Haldové uspořádání je relací částečného uspořádání, proto v této relaci platí tranzitivita. Kořen haldy tudíž obsahuje minimální prvek z celé haldy.
+Haldové uspořádání zajišťuje, že hodnota v rodičovském vrcholu je vždy menší nebo rovna hodnotě ve vrcholu potomka daného vrcholu. Haldové uspořádání je relací částečného uspořádání, proto v této relaci platí tranzitivita. Kořen haldy tedy obsahuje prvek s minimální hodnotou.
 
-Nalezení minimálního prvku znamená získat prvek v haldě implementované polem na indexu kořene.
+Nalezení minimálního prvku znamená získat prvek v haldě implementované polem na indexu kořene. Zdrojový kód a ACSL anotace této funkce zobrazuje výpis kódu \ref{code:HeapFindMin}.
 
 \begin{listing}[H]
 	\caption{Hledání minimálního prvku}
-	\label{list:HeapFindMin}
+	\label{code:HeapFindMin}
 	\begin{minted}{c}
 /*@
   requires 0 < HeapElementsCount(heap);
@@ -164,9 +269,9 @@ HeapElement HeapFindMin(Heap heap) {
 	\end{minted}
 \end{listing}
 
-Haldu je možné pomocí operace odstranění minimálního prvku popsaného v sekci \ref{subsec:HeapExtractMin} úplně vyprázdnit. Výpis kódu \ref{list:HeapFindMin} obsahuje ACSL vstupní podmínku, která kontroluje, že funkce může být volána pouze za předpokladu, že v haldě existuje alespoň jeden prvek.
+Haldu je možné pomocí operace odstranění minimálního prvku popsaného v sekci \ref{subsec:HeapExtractMin} úplně vyprázdnit. Výpis kódu \ref{code:HeapFindMin} obsahuje ACSL vstupní podmínku, která kontroluje, že funkce může být volána pouze za předpokladu, že v haldě existuje alespoň jeden prvek.
 
-ACSL anotace také zajišťují, že nalezený prvek je doopravdy minimálním prvek z celé haldy. Pro dokončení důkazu korektnosti byl zaveden axiom o existenci minimálního prvku, který zobrazuje výpis kód \ref{acsl:axiom_root_is_extreme}. Celá implementace korektní binární minimové haldy využívá pouze \textit{alt-ergo}~a~\textit{cvc4} externí dokazovací nástroje. Tyto nástroje nejsou tento axiom schopny dokázat. \textit{Z3} externí dokazovací nástroj je schopný tento axiom dokázat, ale jelikož by jeho využití bylo opodstatněné pouze v tomto případě, byl zaveden tento axiom místo lemma. Tento axiom následné pomáhá při dokončení důkazu korektnosti algoritmu hledání minimálního prvku v haldě.
+ACSL anotace také zajišťují, že nalezený prvek je doopravdy minimálním prvek z celé haldy. Pro dokončení důkazu korektnosti byl zaveden axiom o existenci minimálního prvku, který zobrazuje výpis kódu \ref{acsl:axiom_root_is_extreme}. Celá implementace korektní binární minimové haldy využívá pouze \textit{Alt-Ergo}~a~\textit{CVC4} externí dokazovací nástroje. Tyto nástroje nejsou tento axiom schopny dokázat. \textit{Z3}~externí dokazovací nástroj je schopný tento axiom dokázat, ale jelikož by jeho využití bylo opodstatněné pouze v tomto případě, byl zaveden tento axiom místo lemma, které by bylo možné dokázat pomocí nástroje Z3. Tento axiom následné pomáhá při dokončení důkazu korektnosti algoritmu hledání minimálního prvku v haldě.
 
 \begin{listing}[H]
 	\caption{Hledání minimálního prvku}
