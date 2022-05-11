@@ -144,7 +144,7 @@ RTE anotace nemusejí být součástí zdrojového kódu, ale mohou být vygener
 \chapter{Implementace důkazu binární haldy}
 %---------------------------------------------------------------
 
-Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotlivé vrcholy očíslovat indexy pole. Tato ověřená implementace používá haldu s kořenem na indexu $0$. Haldu uloženou v poli lze procházet pomocí těchto pravidel:
+Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotlivé vrcholy očíslovat indexy pole. Tato ověřená implementace používá haldu s kořenem na indexu $0$. Haldu uloženou v poli lze procházet pomocí následujících aritmetických operací:
 
 \begin{enumerate}
 	\item[] $\Parent(i) = \lfloor (i - 1) / 2 \rfloor$
@@ -152,9 +152,9 @@ Tvar haldy umožňuje haldu efektivně uložit do lineárního pole a jednotliv�
 	\item[] $\RightChild(i) = 2i + 2$
 \end{enumerate}
 
-Tyto operace jsou implementované pomocí logických funkcí v ACSL anotacích a zároveň jsou vytvořené ekvivalentní funkce v jazyce C. Velká část použitých logických funkcí nebo predikátů má také oddělené funkce v jazyce C pro zajištění konzistence s ACSL anotacemi. Některé z pomocných funkcí nejsou v textu explicitně zmíněné nebo ukázané, jelikož práce popisuje důkazní postupy hlavních operací nad haldou. Pomocné funkce, které nebudou v práci zmíněné mají často jednořádkovou implementaci a mají dostatečně vypovídající jména, aby bylo možné dané funkce používat v ukázkách kódu. Tyto pomocné funkce také obsahují ACSL anotace, aby bylo zajištěno, že všechny funkce v knihovně jsou formálně ověřené. Kompletní zdrojový kód knihovny je k dispozici na přiloženém médiu.
+Tyto operace jsou implementované pomocí logických funkcí v ACSL anotacích a zároveň jsou vytvořené ekvivalentní funkce v jazyce C. Velká část použitých logických funkcí nebo predikátů má také oddělené funkce v jazyce C pro zajištění konzistence s ACSL anotacemi. Některé z~pomocných funkcí nejsou v textu explicitně zmíněné nebo ukázané, jelikož práce popisuje důkazní postupy hlavních operací nad haldou. Pomocné funkce, které nebudou v práci zmíněné mají často jednořádkovou implementaci a mají dostatečně vypovídající jména, aby bylo možné dané funkce používat v ukázkách kódu. Tyto pomocné funkce také obsahují ACSL anotace, aby bylo zajištěno, že všechny funkce v knihovně jsou formálně ověřené. Kompletní zdrojový kód knihovny je k dispozici na přiloženém médiu.
 
-Binární halda musí splňovat tvar haldy a haldové uspořádání. Tvar haldy není v důkazech formálně dokazován, jelikož je použita implementace haldy pomocí pole. Predikát o správném haldovém uspořádání, zobrazený ve výpisu kódu \ref{acsl:ValidHeap}, je základním predikátem, který určuje, zda v haldě platí haldové uspořádání. Tento predikát je vstupní podmínkou pro některé operace nad haldou a všechny operace nad haldou až na částečnou opravu pomocí probublání dolů, o kterém pojednává sekce \ref{subsec:HeapBubbleDown}, tento predikát splňují také jako výstupní ujištění korektnosti algoritmu.
+Binární halda musí splňovat tvar haldy a haldové uspořádání. Tvar haldy není v důkazech formálně dokazován, jelikož je použita implementace haldy pomocí pole. Predikát o správném haldovém uspořádání, zobrazený ve výpisu kódu \ref{acsl:ValidHeap}, je základním predikátem, který určuje, zda v~haldě platí haldové uspořádání. Tento predikát je vstupní podmínkou pro některé operace nad haldou a všechny operace nad haldou až na částečnou opravu pomocí probublání dolů, o kterém pojednává sekce \ref{subsec:HeapBubbleDown}, tento predikát splňují také jako výstupní ujištění korektnosti algoritmu.
 
 \begin{listing}[H]
 	\caption{ACSL predikát validní haldy}
@@ -237,7 +237,7 @@ Jednotlivé hlavní funkce jsou popsány v následujících kapitolách. Komplet
 \section{Hledání minimálního prvku}
 \label{subsec:HeapFindMin}
 
-Hledání minimálního prvku je operace nad haldou, která dokáže v čase $\mathcal{O}(1)$ nalézt prvek s minimální hodnotou v haldě.
+Hledání minimálního prvku je operace nad haldou, která dokáže v čase $\mathcal{O}(1)$ nalézt prvek s~minimální hodnotou v haldě.
 
 Haldové uspořádání zajišťuje, že hodnota prvku v rodičovském vrcholu je vždy menší nebo rovna hodnotě prvku ve vrcholu potomka daného vrcholu. Haldové uspořádání je relací částečného uspořádání, proto v této relaci platí tranzitivita. Kořen haldy tedy obsahuje prvek s minimální hodnotou.
 
@@ -272,7 +272,7 @@ HeapElement HeapFindMin(Heap heap) {
 
 Haldu je možné pomocí operace odstranění minimálního prvku popsaného v sekci \ref{subsec:HeapExtractMin} úplně vyprázdnit. Výpis kódu \ref{code:HeapFindMin} obsahuje ACSL vstupní podmínku, která kontroluje, že funkce může být volána pouze za předpokladu, že v haldě existuje alespoň jeden prvek.
 
-ACSL anotace také zajišťují, že nalezený prvek je doopravdy minimálním prvek z celé haldy. Pro dokončení důkazu korektnosti byl zaveden axiom o existenci minimálního prvku, který zobrazuje výpis kódu \ref{acsl:axiom_root_is_extreme}. Celá implementace korektní binární minimové haldy používá pouze \mbox{\textit{Alt-Ergo}} a~\textit{CVC4} externí dokazovací nástroje. Tyto nástroje nejsou tento axiom schopny dokázat. \textit{Z3}~externí dokazovací nástroj je schopný tento axiom dokázat, ale jelikož by jeho využití bylo opodstatněné pouze v tomto případě, byl zaveden tento axiom místo lemma, které by bylo možné dokázat pomocí nástroje Z3. Tento axiom následné pomáhá při dokončení důkazu korektnosti algoritmu hledání minimálního prvku v haldě.
+ACSL anotace také zajišťují, že nalezený prvek je doopravdy minimálním prvkem z celé haldy. Pro dokončení důkazu korektnosti byl zaveden axiom o existenci minimálního prvku, který zobrazuje výpis kódu \ref{acsl:axiom_root_is_extreme}. Celá implementace korektní binární minimové haldy používá pouze \mbox{\textit{Alt-Ergo}} a~\textit{CVC4} externí dokazovací nástroje. Tyto nástroje nejsou tento axiom schopny dokázat. \textit{Z3}~externí dokazovací nástroj je schopný tento axiom dokázat, ale jelikož by jeho využití bylo opodstatněné pouze v tomto případě, byl zaveden tento axiom místo lemma, které by bylo možné dokázat pomocí nástroje Z3. Tento axiom následné pomáhá při dokončení důkazu korektnosti algoritmu hledání minimálního prvku v haldě.
 
 \begin{listing}[H]
 	\caption{Hledání minimálního prvku}
@@ -305,7 +305,7 @@ Axiom ve výpisu kódu \ref{acsl:axiom_root_is_extreme} zajišťuje, že pokud p
 	\label{img:F-C-HeapFindMin}
 \end{figure}
 
-Na obrázku \ref{img:F-C-HeapFindMin} je vidět úspěšně dokončený důkaz korektnosti hledání minimálního prvku v haldě.
+Na obrázku \ref{img:F-C-HeapFindMin} je vidět úspěšně dokončený důkaz korektnosti hledání minimálního prvku v~haldě.
 
 Ostatní funkce a anotace v implementaci binární haldy nevyužívají axiomy a lze dokázat jejich korektnost pomocí nástrojů \mbox{\textit{Alt-Ergo}} nebo \textit{CVC4}.
 
@@ -411,7 +411,7 @@ Obrázek \ref{img:heap-upper-child-cut} zobrazuje ukázku vrchního řezu haldy 
 	V grafu vrchního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL predikát zobrazený ve výpisu kódu \ref{acsl:HeapUpperChildCut} popisuje vrchní řez haldy pomocí potomka. Tento predikát nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu. Nemusí ale platit, že graf vrchního řezu pomocí potomka je na konci vykonávání funkce prázdný. Tato situace nastává pouze v případě, když je problematický vrchol probublán až do kořene haldy.
+ACSL predikát zobrazený ve výpisu kódu \ref{acsl:HeapUpperChildCut} popisuje vrchní řez haldy pomocí potomka. Tento predikát nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v~kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu. Nemusí ale platit, že graf vrchního řezu pomocí potomka je na konci vykonávání funkce prázdný. Tato situace nastává pouze v případě, když je problematický vrchol probublán až do kořene haldy.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí potomka}
@@ -471,7 +471,7 @@ Obrázek \ref{img:heap-lower-child-cut} zobrazuje ukázku spodního řezu haldy 
 	V grafu spodního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL predikát zobrazený ve výpisu kódu \ref{acsl:HeapLowerChildCut} popisuje spodní řez haldy pomocí potomka. Tento predikát je velmi podobný predikátu vrchního řezu haldy pomocí potomka. Pokrývá ale vrcholy haldy s indexem větším než problematický vrchol a jejich rodičovské vrcholy. Nemusí ale platit, že graf spodního řezu pomocí potomka na konci vykonávání funkce obsahuje celou původní haldu. Tato situace nastává pouze v případě, když je problematický vrchol probublán až do kořene haldy.
+ACSL predikát zobrazený ve výpisu kódu \ref{acsl:HeapLowerChildCut} popisuje spodní řez haldy pomocí potomka. Tento predikát je velmi podobný predikátu vrchního řezu haldy pomocí potomka. Pokrývá ale vrcholy haldy s indexem větším než problematický vrchol a jejich rodičovské vrcholy. Nemusí ale platit, že graf spodního řezu haldy pomocí potomka na konci vykonávání funkce obsahuje celou původní haldu. Tato situace nastává pouze v případě, když je problematický vrchol probublán až do kořene haldy.
 
 \begin{listing}[H]
 	\caption{Predikát validního spodního řezu v haldě pomocí potomka}
@@ -488,9 +488,9 @@ ACSL predikát zobrazený ve výpisu kódu \ref{acsl:HeapLowerChildCut} popisuje
 	\end{minted}
 \end{listing}
 
-ACSL predikát spodního řezu haldy pomocí potomka správně odděluje vrcholy haldy, které mají index větší než problematický vrchol. Zároveň ale neomezuje hodnoty rodičovských vrcholů. Proto je ve spodním řezu pomocí potomka správně obsažen problematický vrchol jako rodičovský vrchol a také některé rodičovské vrcholy, které mají menší index než problematický vrchol. Hrana mezi problematickým vrcholem a jeho rodičovským vrcholem zde správně není obsažena.
+ACSL predikát spodního řezu haldy pomocí potomka správně odděluje vrcholy haldy, které mají index větší než problematický vrchol. Zároveň ale neomezuje indexy rodičovských vrcholů. Proto je ve spodním řezu pomocí potomka správně obsažen problematický vrchol jako rodičovský vrchol a také některé rodičovské vrcholy, které mají menší index než problematický vrchol. Hrana mezi problematickým vrcholem a jeho rodičovským vrcholem zde správně není obsažena.
 
-Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haldy. Tato vlastnost je automaticky splněna pro všechny hrany v~haldě s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto do kódu zavádíme vstupní podmínku a invariantu cyklu, které kontrolují, zda platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
+Poslední nutnou vlastností pro úspěšné dokončení důkazu je tranzitivní haldové uspořádání mezi vrchním a spodním řezem haldy. Tato vlastnost je automaticky splněna pro všechny hrany v~haldě s výjimkou hrany, na které leží problematický vrchol v roli potomka. Proto je do kódu zavedena vstupní podmínka a invariantu cyklu, které kontrolují, zda platí haldové uspořádání pro rodičovský vrchol problematického vrcholu a jednotlivé potomky problematického vrcholu.
 
 Predikáty tranzitivního haldového uspořádání zobrazené ve výpisu kódu \ref{acsl:HeapCutHeapPropertyTransitive} umožňují probublávat problematický vrchol nahoru. Zaručují totiž, že rodičovský prvek, který s problematickým vrcholem vyměníme, bude po provedení výměny splňovat haldové uspořádání se svými novými potomky.
 
