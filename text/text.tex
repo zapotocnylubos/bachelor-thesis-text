@@ -794,25 +794,25 @@ Základní i rozšířené výstupní ujištění v kontraktu funkce je možné 
 \section{Odstranění minimálního prvku}
 \label{subsec:HeapExtractMin}
 
-Datová struktura halda slouží jako prioritní fronta. Kořen haldy vždy obsahuje prvek s nejmenší hodnotou. Algoritmy, které haldu využívají jako prioritní frontu, potřebují tento minimální prvek najít a odstranit z fronty. Hledání minimálního prvku zajišťuje algoritmus popsaný v sekci \ref{subsec:HeapFindMin}. Algoritmus odstranění minimálního prvku a důkaz korektnosti je popsán v této sekci.
+Kořen binární minimové haldy vždy obsahuje prvek s nejmenší hodnotou. Algoritmy, které haldu využívají jako prioritní frontu, potřebují tento minimální prvek najít a odstranit z fronty. Hledání minimálního prvku zajišťuje algoritmus popsaný v sekci \ref{subsec:HeapFindMin}. Algoritmus odstranění minimálního prvku a důkaz korektnosti je popsán v této sekci.
 
-Odstranění minimálního prvku z haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ odstraní daný vrchol z haldy a v čase $\mathcal{O}(\log(n))$ opraví haldové uspořádání. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
+Odstranění minimálního prvku z haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ odstraní daný prvek z haldy a v čase $\mathcal{O}(\log(n))$ opraví haldové uspořádání. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
 
-Kořen haldy lze bezproblémově odstranit pouze v případě, když je kořen jediný prvek v haldě. Pokud má kořen nějaké potomky, odstraněním kořene by se porušil tvar haldy.
+Kořen haldy lze odstranit pouze v případě, když je kořen jediným prvkem v haldě. Pokud má kořen nějaké potomky, odstraněním kořene by se porušil tvar haldy.
 
 \begin{remark}
-Z haldy lze odstranit prvek s největším indexem, bez toho, aby se porušil tvar haldy.
+Z haldy lze odstranit prvek s největším indexem bez porušení tvaru haldy.
 \end{remark}
 
-Algoritmus v prvním kroku vymění hodnotu uleženou v kořeni haldy s hodnotou uloženou ve vrcholu s největším indexem. Ve druhém kroku vrchol s největším indexem odstraní z haldy. Poslední krok algoritmu je probublání dolů kořene haldy.
+Algoritmus v prvním kroku vymění prvek uložený v kořeni haldy s prvkem uloženým ve vrcholu s největším indexem. Ve druhém kroku je vrchol s největším indexem odstraněn z haldy. Poslední krok algoritmu je probublání kořene haldy dolů.
 
-Výměnou hodnoty v kořeni haldy a na největším indexu mohlo dojít k porušení haldového uspořádání. Algoritmus probublání má tři vstupní podmínky, pokud chceme získat haldové uspořádání v celé haldě. Horní řez haldou pomocí rodiče je triviálně splněn, jelikož se v případě probublání kořene jedná o prázdný graf. Spodní řez haldou obsahuje všechny vrcholy bez kořene a všechny hrany, na kterých neleží kořen. Jelikož v původní haldě před výměnou hodnoty kořene za hodnotu z vrcholu s největším indexem platilo haldové uspořádání, v podgrafu vytvořeným spodním řezem pomocí rodiče musí platit haldové uspořádání také. Tranzitivní haldové uspořádání triviálně platí, jelikož kořen nemá žádného rodiče.
+Výměnou prvku v kořeni haldy s prvkem na největším indexu haldy mohlo dojít k porušení haldového uspořádání. Algoritmus probublání dolů je aplikován s rozšířenými vstupními podmínkami, jelikož je splněn horní a dolní řez haldy pomocí rodiče a tranzitivní haldové uspořádání triviálně platí, jelikož kořen nemá žádného rodiče. Horní řez haldy pomocí rodiče je splněn, jelikož se v případě probublání kořene jedná o prázdný graf. Spodní řez haldy pomocí rodiče obsahuje všechny vrcholy bez kořene a všechny hrany, na kterých neleží kořen. Jelikož v původní haldě před výměnou prvku kořene za prvek z vrcholu s největším indexem platilo haldové uspořádání, tak v~podgrafu spodního řezu zmenšené haldy pomocí rodiče musí platit haldové uspořádání.
 
 \begin{figure}[H]
 	\centering
 	\begin{tikzpicture}[level/.style={sibling distance=60mm/#1}]
 		\node [circle,draw,ultra thick] (0) {8}
-		child { node [circle,draw=blue,fill=cyan!15] (1) {4}
+		child { node [circle,thick,draw=blue,fill=cyan!15] (1) {4}
 			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (3) {6}
 				child { node [circle,draw,fill=cyan!15] (7) {9} }
 				child { node [circle,draw,fill=cyan!15] (8) {8} }
@@ -822,7 +822,7 @@ Výměnou hodnoty v kořeni haldy a na největším indexu mohlo dojít k poruš
 				child[draw=black,dotted] { node [circle,draw] (10) {1} }
 			}
 		}
-		child { node [circle,draw=blue,fill=cyan!15] (2) {5}
+		child { node [circle,thick,draw=blue,fill=cyan!15] (2) {5}
 			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (5) {7} }
 			child[thick,draw=blue] { node [circle,draw,fill=cyan!15] (6) {9} }
 		};
@@ -831,7 +831,7 @@ Výměnou hodnoty v kořeni haldy a na největším indexu mohlo dojít k poruš
 	\label{img:heap-extract-min-heap-lower-parent-cut}
 \end{figure}
 
-Obrázek \ref{img:heap-extract-min-heap-lower-parent-cut} zobrazuje stav haldy po výměně hodnoty v kořeni za hodnotu ve vrcholu s~největším indexem. Tečkovaně je naznačena hrana a vrchol, které se v rámci algoritmu odstraňují a tučně je zvýrazněn nový kořen haldy, který bude v následujícím kroku algoritmu probublán dolů.
+Obrázek \ref{img:heap-extract-min-heap-lower-parent-cut} zobrazuje stav haldy po výměně prvku v kořeni haldy za prvek ve vrcholu s~největším indexem. Tečkovaně je naznačena hrana a vrchol, které se v rámci algoritmu odstraňují a tučně je zvýrazněn nový kořen haldy, který bude v následujícím kroku algoritmu probublán dolů.
 
 \begin{listing}[H]
 	\caption{Kód a ACSL anotace odstranění minimálního prvku z haldy}
@@ -863,9 +863,9 @@ Heap HeapExtractMin(Heap heap) {
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{code:HeapExtractMin} zobrazuje kompletní kód odstranění minimálního prvku z haldy společně s ACSL anotacemi. Vstupní podmínka pro volání funkce odstranění minimálního prvku je nenulový počet prvků v haldě a haldové uspořádání v haldě. Výstupní anotace zajišťují, že funkce zmenšuje počet prvků v haldě a také, že ve zmenšené haldě stále platí haldové uspořádání.
+Výpis kódu \ref{code:HeapExtractMin} zobrazuje kompletní kód funkce odstranění minimálního prvku z haldy společně s~kontraktem funkce. Vstupní podmínka pro volání této funkce je nenulový počet prvků v haldě a platný predikát o haldovém uspořádání. Výstupní anotace zajišťují, že funkce zmenšuje počet prvků v haldě a také, že ve výsledné zmenšené haldě stále platí haldové uspořádání.
 
-Implementace tohoto algoritmu odhalila, že pro volání probublání dolů kořene je nutné v haldě po odstranění prvku s maximálním indexem alespoň jeden prvek stále mít. Některé pseudokódy tento krok nezohledňují. Tato chyba byla pomocí ACSL odhalena a bylo ji možné ihned opravit a dokončit důkaz korektnosti. Obrázek \ref{img:F-C-HeapExtractMin} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu odstranění minimálního prvku z haldy.
+Implementace tohoto algoritmu odhalila, že pro volání probublání dolů kořene je nutné v haldě po odstranění prvku s maximálním indexem alespoň jeden prvek stále mít. Některé pseudokódy tuto podmínku nezohledňují, jelikož se spoléhají na nulový počet kroků cyklu ve funkci probublání dolů. \cite{Pruvodce2017} Z hlediska tvorby formálního důkazu korektnosti tato podmínka musela být zohledněna již ve funkci odstranění minimálního prvku. Tato chyba byla pomocí ACSL odhalena a~bylo ji možné ihned opravit a dokončit důkaz korektnosti. Obrázek \ref{img:F-C-HeapExtractMin} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu odstranění minimálního prvku z haldy.
 
 \begin{figure}[H]
 	\centering
@@ -878,7 +878,7 @@ Implementace tohoto algoritmu odhalila, že pro volání probublání dolů koř
 \section{Změna hodnoty prvku}
 \label{subsec:HeapChange}
 
-Algoritmy, které využívají binární minimovou haldu mohou měnit hodnotu jednotlivých prvků haldy. Jedná se o změnu priority prvku, který je v haldě jednoznačně identifikovatelný. Funkce pro změnu hodnoty využívá dvě oddělené funkce, funkci pro snížení hodnoty prvku a funkci pro zvýšení hodnoty prvku.
+Algoritmy, které používají binární minimovou haldu, mohou měnit hodnoty jednotlivých prvků v haldě. Jedná se o změnu priority prvku, který lze v haldě jednoznačně identifikovat pomocí indexu pole. Funkce pro změnu hodnoty používá dvě oddělené funkce pro snížení hodnoty prvku a funkci pro zvýšení hodnoty prvku.
 
 \begin{listing}[H]
 	\caption{Kód a ACSL anotace změny hodnoty prvku haldy}
@@ -908,7 +908,7 @@ void HeapChange(Heap heap, int index, HeapElement element) {
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{code:HeapChange} zobrazuje tělo funkce, která pomocí kontroly aktuální hodnoty vrcholu v haldě a požadované nové hodnotě prvku volá funkci pro zmenšení hodnoty prvku nebo zvětšení hodnoty prvku. Obě zmíněné funkce zajišťují změnu hodnoty vrcholu haldy a následné opravení haldového uspořádání, které se mohlo narušit změnou hodnoty prvku. Jelikož je volání těchto funkcí poslední akce ve funkci pro změnu hodnoty prvku v haldě, lze přidat stejné anotace pro ujištění o změně hodnoty prvku a opravení haldového uspořádání do anotace funkce o změně hodnoty prvku v haldě.
+Výpis kódu \ref{code:HeapChange} zobrazuje funkci pro změnu hodnoty prvku v haldě, která pomocí kontroly aktuální hodnoty prvku v haldě a požadované nové hodnotě prvku volá funkci pro zmenšení hodnoty prvku nebo funkci pro zvětšení hodnoty prvku. Obě zmíněné funkce zajišťují změnu hodnoty prvku haldy a následné opravení haldového uspořádání, které se mohlo narušit změnou hodnoty prvku. Jelikož je volání těchto funkcí poslední akce ve funkci pro změnu hodnoty prvku v haldě, lze přidat stejné anotace pro ujištění o změně hodnoty prvku a opravení haldového uspořádání do kontraktu funkce o změně hodnoty prvku v haldě.
 
 \begin{figure}[H]
 	\centering
@@ -917,7 +917,7 @@ Výpis kódu \ref{code:HeapChange} zobrazuje tělo funkce, která pomocí kontro
 	\label{img:F-C-HeapChange}
 \end{figure}
 
-Výpis kódu \ref{code:HeapChange} zobrazuje úspěšné dokončení důkazu korektnosti funkce pro změnu hodnoty prvku v haldě. Následné je vhodné dokázat korektnost jednotlivých funkcí pro snížení hodnoty prvku v haldě a pro zvýšení prvku v haldě.
+Obrázek \ref{img:F-C-HeapChange} zobrazuje úspěšné dokončení důkazu korektnosti funkce pro změnu hodnoty prvku v haldě. Následné je vhodné dokázat korektnost jednotlivých funkcí pro snížení hodnoty prvku v haldě a pro zvýšení hodnoty prvku v haldě.
 
 \begin{listing}[H]
 	\caption{Datová struktura prvku haldy}
@@ -932,7 +932,7 @@ typedef struct _HeapElement {
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{code:HeapElement} zobrazuje datovou strukturu prvky haldy. Tato struktura mimo jiné obsahuje aktuálním informaci o indexu daného prvku v haldě, na kterém je daný prvek uložen. Znalost indexu daného prvku umožňuje rychlý přístup k danému prvku v haldě implementované pomocí pole. Úpravu vrcholu je možné provést v čase $\mathcal{O}(1)$ pomocí přímého přístupu na index pole bez nutnosti daný prvek v haldě vyhledávat. 
+Výpis kódu \ref{code:HeapElement} zobrazuje datovou strukturu prvku haldy. Tato struktura mimo jiné obsahuje aktuální informaci o indexu daného prvku v haldě, na kterém je daný prvek uložen. Znalost indexu daného prvku umožňuje rychlý přístup k danému prvku v haldě implementované pomocí pole. Úpravu vrcholu je možné provést v čase $\mathcal{O}(1)$ pomocí přímého přístupu na index pole bez nutnosti daný prvek v haldě vyhledávat. 
 
 Aktuální informace o indexu daného prvku v haldě je automaticky aktualizována při jakékoli změně či prohození dvou prvků v haldě, jak je znázorněno na výpisu kódu \ref{code:HeapSwap}.
 
@@ -1000,7 +1000,7 @@ void HeapDecrease(Heap heap, int index, HeapElement element) {
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{code:HeapDecrease} zobrazuje kód a ACSL anotaci funkce pro snížení hodnoty prvku v haldě. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota, která nahrazuje původní hodnotu je doopravdy nižší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání nahoru by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapDecrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu zvýšení hodnoty prvku v haldě.
+Výpis kódu \ref{code:HeapDecrease} zobrazuje funkci pro snížení hodnoty prvku v haldě a~její kontrakt. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota prvku, která nahrazuje původní hodnotu prvku je doopravdy nižší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání nahoru by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapDecrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu snížení hodnoty prvku v haldě.
 
 \begin{figure}[H]
 	\centering
@@ -1042,7 +1042,7 @@ void HeapIncrease(Heap heap, int index, HeapElement element) {
 	\end{minted}
 \end{listing}
 
-Výpis kódu \ref{code:HeapIncrease} zobrazuje kód a ACSL anotaci funkce pro zvýšení hodnoty prvku v haldě. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota, která nahrazuje původní hodnotu je doopravdy vyšší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání dolů by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapIncrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu zvýšení hodnoty prvku v haldě.
+Výpis kódu \ref{code:HeapIncrease} zobrazuje funkci pro zvýšení hodnoty prvku v haldě a~její kontrakt. Jedna ze vstupních podmínek této funkce ověřuje, že hodnota prvku, která nahrazuje původní hodnotu prvku je doopravdy vyšší nebo stejná. Pokud by tato podmínka neplatila, volání algoritmu probublání dolů by neopravilo haldové uspořádání a nebylo by možné dokončit důkaz korektnosti algoritmu. Obrázek \ref{img:F-C-HeapIncrease} zobrazuje úspěšně dokončený důkaz korektnosti algoritmu zvýšení hodnoty prvku v haldě.
 
 \begin{figure}[H]
 	\centering
@@ -1057,9 +1057,9 @@ Výpis kódu \ref{code:HeapIncrease} zobrazuje kód a ACSL anotaci funkce pro zv
 
 Algoritmus konstrukce haldy je prvotní akce, která vytváří strukturu haldy a zajišťuje haldové uspořádání mezi prvky, ze kterých má být halda sestavena.
 
-Implementace pomocí postupného vkládání jednotlivých prvků má časovou složitost $\mathcal{O}(n\log(n))$, jelikož musíme provést algoritmus vložení prvku, který má časovou složitost $\mathcal{O}(\log(n))$ pro každý prvek, ze kterého má být halda sestavena.
+Implementace pomocí postupného vkládání jednotlivých prvků má časovou složitost $\mathcal{O}(n\log(n))$, jelikož musíme provést algoritmus vložení prvku, který má časovou složitost $\mathcal{O}(\log(n))$ pro každý prvek, ze kterého má být halda sestavena. \cite{IntroductionToAlgorithms2022}
 
-Tento algoritmus lze zefektivnit pomocí postupného opravování haldy probubláváním rodičovských vrcholů dolů. Algoritmus postupně zvětšuje podgraf spodního řezu haldou pomocí potomka až do té doby, než daný řez obsahuje všechny prvky, ze kterých měla být halda sestavena. Anotace algoritmus probublání dolů obsahují základní vstupní podmínky pro částečné opravení haldy, které tento postup splňují. Algoritmus sestavení haldy postupně nechává probublat dolů všechny rodičovské vrcholy od největšího index v poli až po kořen.
+Tento algoritmus lze efektivně implementovat pomocí postupného opravování haldy probubláváním rodičovských vrcholů dolů. \cite{IntroductionToAlgorithms2022} Algoritmus postupně zvětšuje podgraf spodního řezu haldou pomocí potomka až do té doby, než daný řez obsahuje všechny prvky, ze kterých měla být halda sestavena. Anotace algoritmus probublání dolů obsahují základní vstupní podmínky pro částečné opravení haldy, které tento postup splňují. Algoritmus sestavení haldy postupně nechává probublat dolů všechny rodičovské vrcholy od největšího index v poli až po kořen.
 
 \begin{listing}[H]
 	\caption{Kód a ACSL anotace zvýšení hodnoty prvku v hladě}
