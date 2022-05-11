@@ -312,7 +312,7 @@ Ostatní funkce a anotace v implementaci binární haldy nevyužívají axiomy a
 \section{Probublání prvku nahoru}
 \label{subsec:HeapBubbleUp}
 
-Probublání prvku haldy směrem nahoru (ke kořeni) je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila hodnota pouze toho vrcholu, který má být probublán.
+Probublání prvku haldy směrem nahoru (ke kořeni) je operace nad haldou, která dokáže v čase $\mathcal{O}(\log(n))$ opravit haldové uspořádání za předpokladu, že se snížila pouze hodnota prvku uloženého ve vrcholu, který má být probublán.
 
 Algoritmus předpokládá, že haldové uspořádání lze porušit pouze mezi jednou dvojicí vrcholů $u$ a $v$, kde $u$ je rodičovský vrchol a $v$ je jeho potomek. Tedy v celé haldě s výjimkou této dvojice musí platit haldové uspořádání. V této dvojici může platit, že syn~$v$ má menší hodnotu než jeho otec~$u$. Dále se předpokládá, že tento algoritmus bude proveden po zmenšení hodnoty některého vrcholu nebo po vložení nového vrcholu do haldy. V obou případech je potřeba tento vrchol probublat nahoru do správné pozice v haldě. Pokud by se hodnota zvýšila, měl by být aplikován algoritmus probublání dolů, o kterém pojednává sekce \ref{subsec:HeapBubbleDown}.
 
@@ -338,7 +338,7 @@ void HeapBubbleUp(Heap heap, int index) {
 	\end{minted}
 \end{listing}
 
-Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto řezy slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, ve které nemusí platit haldové uspořádání.
+Pro důkaz korektnosti tohoto algoritmu jsou použity \textit{řezy} haldou. Tyto řezy slouží pro rozdělení grafu haldy na dva podgrafy, ve kterých platí haldové uspořádání. Řezy dohromady tvoří původní graf haldy bez jedné problematické hrany $(u, v)$, na které nemusí platit haldové uspořádání.
 
 Rozdělení haldy pro operaci probublání nahoru by mohlo vypadat podobně jak znázorňuje obrázek \ref{img:heap-intuitive-cut}. Tento přístup ale není vhodný pro algoritmické zpracování a dokazovaní, jelikož se toto rozdělení složitě popisuje. Zavedeme proto horní a spodní řezy haldy pomocí potomka, které pracují s indexy jednotlivých prvků haldy reprezentované polem.
 
@@ -407,7 +407,7 @@ Rozdělení haldy pro operaci probublání nahoru by mohlo vypadat podobně jak 
 	V grafu vrchního řezu haldy pomocí potomka platí haldové uspořádání.
 \end{remark}
 
-ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru. Nemusí ale platit, že graf vrchního řezu pomocí potomka je na konci vykonávání funkce prázdný. Tato situace nastává pouze v případě, když je problematický vrchol probublán do kořene haldy.
+ACSL kód popisující vrchní řez haldy pomocí potomka nevytváří nový podgraf s~výše definovanými vlastnostmi, ale pouze ověřuje, že daná část (podgraf) haldy splňuje haldové uspořádání. Takto vytvořený predikát je následně použit v kontraktu funkce jako jedna ze vstupních podmínek algoritmu probublání nahoru a je také použit jako invariant cyklu. Predikát je tedy platný při volání funkce, po každém kroku cyklu a je také platný na konci vykonávání funkce. Tato induktivní vlastnost následně napomáhá při dokončení důkazu korektnosti algoritmu probublání nahoru. Nemusí ale platit, že graf vrchního řezu pomocí potomka je na konci vykonávání funkce prázdný. Tato situace nastává pouze v případě, když je problematický vrchol probublán až do kořene haldy.
 
 \begin{listing}[H]
 	\caption{Predikát validního vrchního řezu v haldě pomocí potomka}
