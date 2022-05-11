@@ -521,7 +521,7 @@ V prostředí Frama-c lze formálně dokázat korektnost celé funkce probublán
   \item problematický prvek nemohl dále probublat, tudíž je na správné pozici v haldě.
 \end{enumerate}
 
-Spojením platnost invariantů cyklu a znalostí o aktuálně opravené hraně dává dostatečné důkazy pro verifikační prostředí, že pro každou hranu $(u, v)$ dané haldy, kde $u$ je rodičovský vrchol $v$, platí haldové uspořádání. Úspěšně dokončený důkaz funkce probublání nahoru je zobrazen na obrázku \ref{img:F-C-HeapBubbleUp}.
+Spojením platnosti invariantů cyklu a znalostí o aktuálně opravené hraně dává dostatečné důkazy pro verifikační prostředí, že pro každou hranu $(u, v)$ dané haldy, kde $u$ je rodičovský vrchol $v$, platí haldové uspořádání. Úspěšně dokončený důkaz korektnosti funkce probublání nahoru je zobrazen na obrázku \ref{img:F-C-HeapBubbleUp}.
 
 \begin{figure}[H]
 	\centering
@@ -533,11 +533,11 @@ Spojením platnost invariantů cyklu a znalostí o aktuálně opravené hraně d
 \section{Vložení prvku}
 \label{subsec:HeapInsert}
 
-Vložení prvku do haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ vloží nový vrchol do haldy a následně v~čase $\mathcal{O}(\log(n))$ tento vrchol umístí na správnou pozici v haldě. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
+Vložení prvku do haldy je operace nad haldou, která v čase $\mathcal{O}(1)$ vloží nový prvek do haldy a~následně v~čase $\mathcal{O}(\log(n))$ tento prvek umístí na správnou pozici v haldě. Celková asymptotická časová složitost je tedy $\mathcal{O}(\log(n))$.
 
-Algoritmus přidává nový vrchol do nejspodnější hladiny haldy tak, aby byl udržen tvar haldy. Pro takto vložený vrchol ale nemusí platit haldové uspořádání s jeho rodičovským vrcholem. Mohlo se stát, že vložený vrchol má menší hodnotou než jeho rodičovský vrchol. Proto je nutné provést probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
+Algoritmus přidává nový vrchol do nejspodnější hladiny haldy tak, aby byl udržen tvar haldy. Pro takto vložený vrchol nemusí platit haldové uspořádání s jeho rodičovským vrcholem. Mohlo se stát, že hodnota prvku v nově přidaném vrcholu má menší hodnotou než hodnota prvku v~jeho rodičovském vrcholu. Proto je nutné provést probublání nahoru, o kterém pojednává sekce \ref{subsec:HeapBubbleUp}.
 
-Algoritmus probublání vrcholu nahoru má tři vstupní podmínky. V haldě musí platit predikát o horním řezu podle potomka, který v případě přidání nového vrcholu platí. Před přidáním vrcholu byla halda validní a platilo v ní haldové uspořádání. Nový prvek je vložen na nový největší index v haldě. Tedy pro tento nový index platí vrchní řez haldou pomocí potomka, protože tento řez popisuje původní haldu, ve které platilo haldové uspořádání. Spodní řez haldy pomocí potomka také platí, protože se jedná o prázdný graf. Tranzitivní haldové uspořádání u aktuálně přidaného vrcholu také platí, protože tento vrchol nemá žádné potomky.
+Algoritmus probublání nahoru má tři vstupní podmínky. V haldě musí platit predikát o~horním řezu haldy pomocí potomka, který v případě přidání nového vrcholu platí. Před přidáním vrcholu byla halda validní a platilo v ní haldové uspořádání. Nový prvek je vložen na nový největší index v haldě. Tedy pro tento nový index platí vrchní řez haldou pomocí potomka, protože tento řez popisuje původní haldu, ve které platilo haldové uspořádání. Spodní řez haldy pomocí potomka také platí, protože se jedná o prázdný graf. Tranzitivní haldové uspořádání u aktuálně přidaného vrcholu také platí, protože tento vrchol nemá žádné potomky.
 
 \begin{figure}[H]
 	\centering
@@ -558,12 +558,13 @@ Algoritmus probublání vrcholu nahoru má tři vstupní podmínky. V haldě mus
 			child { node [circle,draw,fill=cyan!15] (6) {9} }
 		};
 	\end{tikzpicture}
-	\caption{Ukázka vrchního řezu haldy pomocí potomka při přidání vrcholu}\label{img:heap-insert-heap-upper-child-cut}
+	\caption{Ukázka vrchního řezu haldy pomocí potomka při přidání vrcholu}
+	\label{img:heap-insert-heap-upper-child-cut}
 \end{figure}
 
-Na obrázku \ref{img:heap-insert-heap-upper-child-cut} je zobrazeno přidání nového vrcholu do haldy a je zvýrazněn horní řez haldy podle potomka.
+Na obrázku \ref{img:heap-insert-heap-upper-child-cut} je zobrazeno přidání nového vrcholu do haldy a je zvýrazněn horní řez haldy pomocí potomka.
 
-Algoritmus probublání nahoru tento nový vrchol vymění s jeho rodičovským vrcholem, protože nově přidaný vrchol má menší hodnotu než jeho rodičovský vrchol. Tímto prvním krokem algoritmu se nově přidaný vrchol dostal níže v haldě, ale stále platí všechny tři invarianty cyklu. Horní řez haldy pomocí potomka se pouze zmenšil a spodní řez haldy pomocí potomka se zvětšil o vrcholy, které se v původním kroku vyskytovaly v horním řezu a také o vrchol původního rodiče nového vrcholu. Tranzitivní haldové uspořádání začíná platit mezi rodičovským prvkem aktuálně probublaného vrcholu a jeho potomky.
+Algoritmus probublání nahoru tento nový vrchol vymění s jeho rodičovským vrcholem, protože hodnota prvku v nově přidaném vrcholu má menší hodnotu než prvek v jeho rodičovském vrcholu. Tímto prvním krokem algoritmu se nově přidaný vrchol dostal výše v haldě, ale stále platí všechny čtyři invarianty cyklu. Horní řez haldy pomocí potomka se pouze zmenšil a spodní řez haldy pomocí potomka se zvětšil o vrcholy, které se v předchozím kroku vyskytovaly v horním řezu pomocí potomka a také o vrchol původního rodiče nového vrcholu. Tranzitivní haldové uspořádání začíná platit mezi rodičovským prvkem aktuálně probublaného vrcholu a jeho potomky.
 
 Algoritmem probublání se nový vrchol dostane do správné pozice a ve výsledné haldě, o jeden vrchol větší, je opraveno haldové uspořádání.
 
@@ -597,7 +598,7 @@ Heap HeapInsert(Heap heap, HeapElement element) {
 	\end{minted}
 \end{listing}
 
-ACSL anotace algoritmu probublání nahoru zajišťují, že po dokončení algoritmu je předaná halda validní. Haldové uspořádání tedy po dokončení probublání nahoru platí v celé haldě. Jelikož je volání probublání nahoru poslední akcí algoritmu vložení prvku, lze toto ujištění validnosti haldy vložit také do anotace algoritmu vkládání prvku. Tímto je zaručena korektnost algoritmu vkládání prvku do haldy.
+Výpis kódu \ref{list:HeapInsert} zobrazuje funkci pro přidání nového prvku do haldy společně s kontraktem této funkce. ACSL anotace funkce probublání nahoru zajišťují, že po dokončení probublání nahoru je předaná halda opravená a platí v ní haldové uspořádání. Jelikož je volání funkce probublání nahoru poslední akcí funkce vložení prvku, lze ujištění validnosti haldy vložit také do kontraktu funkce vkládání prvku. Tímto je zaručena korektnost funkce vkládání prvku do haldy. Obrázek~\ref{img:F-C-HeapInsert} zobrazuje úspěšně dokončený důkaz korektnosti funkce v prostředí Frama-C.
 
 \begin{figure}[H]
 	\centering
