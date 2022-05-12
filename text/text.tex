@@ -1059,10 +1059,10 @@ Algoritmus konstrukce haldy je prvotní akce, která vytváří strukturu haldy 
 
 Implementace pomocí postupného vkládání jednotlivých prvků má časovou složitost $\mathcal{O}(n\log(n))$, jelikož musíme provést algoritmus vložení prvku, který má časovou složitost $\mathcal{O}(\log(n))$ pro každý prvek, ze kterého má být halda sestavena. \cite{IntroductionToAlgorithms2022}
 
-Tento algoritmus lze efektivně implementovat pomocí postupného opravování haldy probubláváním rodičovských vrcholů dolů. \cite{IntroductionToAlgorithms2022} Algoritmus postupně zvětšuje podgraf spodního řezu haldou pomocí potomka až do té doby, než daný řez obsahuje všechny prvky, ze kterých měla být halda sestavena. Anotace algoritmus probublání dolů obsahují základní vstupní podmínky pro částečné opravení haldy, které tento postup splňují. Algoritmus sestavení haldy postupně nechává probublat dolů všechny rodičovské vrcholy od největšího index v poli až po kořen.
+Tento algoritmus lze efektivněji implementovat pomocí postupného opravování haldy probubláváním rodičovských vrcholů dolů. \cite{IntroductionToAlgorithms2022} Algoritmus postupně zvětšuje podgraf spodního řezu haldy pomocí rodiče až do té doby, než daný řez obsahuje všechny prvky, ze kterých měla být halda sestavena. Anotace algoritmu probublání dolů obsahují základní vstupní podmínky pro částečné opravení haldy, které jsou zkonstruované právě pro toto použití. Algoritmus konstrukce haldy postupně probublává dolů všechny rodičovské vrcholy od největšího indexu až po kořen haldy.
 
 \begin{listing}[H]
-	\caption{Kód a ACSL anotace zvýšení hodnoty prvku v hladě}
+	\caption{Kód a ACSL anotace konstrukce haldy}
 	\label{code:HeapBuild}
 	\begin{minted}{c}
 /*@
@@ -1106,82 +1106,64 @@ Heap HeapBuild(HeapElement *elements, int elementsCount, int elementsCapacity) {
 	\end{minted}
 \end{listing}
 
-Invarianty cyklu ve výpisu kód \ref{code:HeapBuild} zajišťují haldové uspořádání v spodním řezu haldou pomocí potomka s postupně snižujícím se indexem. Tento index bude po posledním kroku cyklu nastaven na hodnotu $-1$ a invariant spodního řezu haldou pomocí potomka tedy bude obsahovat celou haldu a bude zajišťovat haldové uspořádání v celé haldě.
+\pagebreak
+
+Invarianty cyklu ve výpisu kódu \ref{code:HeapBuild} zajišťují haldové uspořádání ve spodním řezu haldy pomocí rodiče s postupně snižujícím se indexem. Tento index bude po posledním kroku cyklu nastaven na hodnotu $-1$ a invariant spodního řezu haldy pomocí rodiče bude obsahovat celou haldu, tedy bude zajišťovat haldové uspořádání v celé haldě.
 
 %---------------------------------------------------------------
 \chapter{Metody ladění při vývoji důkazu}
 %---------------------------------------------------------------
 
-Důkazní postupy v jazyku ACSL mohou být výrazně odlišené od matematických a formálních důkazů v knihách a publikacích. Při tvorbě nebo přepisu predikátů, konstrukci invariantů cyklů nebo při kontrole vstupních podmínek je výhodné pro vývojáře znát některé techniky, které mohou pomoci odhalit chyby v kódu nebo v důkazech. 
+Důkazní postupy v jazyce ACSL mohou být výrazně odlišené od matematických a formálních důkazů v knihách a publikacích. Při tvorbě nebo přepisu predikátů, invariantů cyklů nebo při kontrole vstupních podmínek je výhodné pro vývojáře znát některé techniky, které mohou pomoci odhalit chyby v kódu nebo v důkazech.
 
 \section{Zúžení vstupních podmínek}
 
-Při návrhu funkce lze definovat vstupní podmínky, které musejí být splněně, aby mohla být daná funkce spuštěna. Tato podmínka může kontrolovat například hodnoty předávaných parametrů. Pokud by funkce zaručovala platnost nějakého tvrzení při dokončení funkce, může nastat situace, že žádný z důkazních nástrojů nebude schopný danou vlastnost ověřit. Pokud se jedná o chybu v kódu nebo anotaci funkce, lze ji snadným způsobem odhalit pomocí zúžení vstupních podmínek.
+Při návrhu funkce lze definovat vstupní podmínky, které musejí být splněně, aby mohla být daná funkce volána. Tato podmínka může kontrolovat například hodnoty předávaných parametrů. Pokud by funkce zaručovala platnost nějakého tvrzení při dokončení funkce, může nastat situace, že žádný z důkazních nástrojů nebude schopný danou vlastnost formálně ověřit. Pokud se jedná o chybu v kódu nebo anotaci funkce, lze ji často odhalit zúžením vstupních podmínek.
 
-Mějme definovaný induktivní predikát, který tvoří tranzitivní uzávěr haldového uspořádání v binární minimové haldě. Induktivní predikát má základní podmínky platnosti a následuje induktivně popsaná vlastnost, která může být splněna.
+Mějme induktivní predikát z výpisu kódu \ref{acsl:IsDescendant}, který tvoří tranzitivní uzávěr vlastnosti být potomkem v~binární minimové haldě. Induktivní predikát obsahuje základní podmínky platnosti a následně induktivně popsanou vlastnost.
 
 \begin{listing}[H]
-	\caption{Chybný ACSL predikát tranzitivní vlastnosti být potomkem}
-	\label{acsl:IsDescendantFail}
+	\caption{ACSL predikát tranzitivní vlastnosti být potomkem}
+	\label{acsl:IsDescendant}
 	\begin{minted}{c}
 /*@
-  inductive IsDescendant(integer descendant, integer ancestor, Heap heap) {
+  inductive IsDescendant(Heap heap, integer descendant, integer ancestor) {
     case children:
-      \forall integer child, Heap *heap;
+      \forall Heap heap, integer child;
         0 < child < HeapElementsCount(heap) ==>
-          IsDescendant(child, Parent(child), heap);
+          IsDescendant(heap, child, Parent(child));
 
     case descendants:
-      \forall integer ancestor, element, Heap *heap;
+      \forall Heap heap, integer ancestor, element;
         0 <= ancestor < element < HeapElementsCount(heap) ==>
-          IsDescendant(ancestor, Parent(element), heap) ==> 
-            IsDescendant(element, ancestor, heap);
+          IsDescendant(heap, Parent(element), ancestor) ==> 
+            IsDescendant(heap, element, ancestor);
   }
+*/
     \end{minted}
 \end{listing}
 
-Takto zadefinovaný predikát není správně. Pomocí prázdné funkce se vstupní podmínkou platnosti tohoto predikátu a vynuceným počtem vrcholů lze tento predikát testovat. Na obrázku \ref{img:F-C-test-IsDescendantFail} je vidět příklad použití této metody a nalezeným problém v definici predikátu. ACSL správně dokázalo predikát pro vrcholy a jejich přímé potomky, ale již nebylo možné dokázat platnosti predikátu přes více potomků. Tato informace vývojáři naznačuje, že chyba nejspíše nebude v základním případu s platností predikátu u přímých potomků vrcholů, ale bude nejspíše v induktivní části predikátu.
+\pagebreak
+
+Pomocí prázdné funkce se vstupní podmínkou na počet prvků v haldě lze tento predikát otestovat. Na obrázku \ref{img:F-C-test-IsDescendant} je vidět příklad použití této metody. Verifikační prostředí Frama-C správně nebylo schopné dokázat, že vrchol s~indexem 3 je potomkem vrcholu s indexem 2. Tento predikát tedy nejspíše neobsahuje chybu. Nejedná se ale o~kompletní formální důkaz korektnosti, ale pouze o ujištění pro vývojáře, že predikát funguje na ukázkových datech.  
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=10cm]{images/frama-c-test-IsDescendantFail}
-	\caption{Neúspešné dokončení kontroly platnosti predikátu  IsDescendant v prostředí Frama-C}
-	\label{img:F-C-test-IsDescendantFail}
-\end{figure}
-
-
-\begin{listing}[H]
-	\caption{Opravený ACSL predikát tranzitivní vlastnosti být potomkem}
-	\label{acsl:IsDescendantSuccess}
-	\begin{minted}{c}
-/*@
-  inductive IsDescendant(integer descendant, integer ancestor, Heap heap) {
-    case children:
-      \forall integer child, Heap *heap;
-        0 < child < HeapElementsCount(heap) ==>
-          IsDescendant(child, Parent(child), heap);
-
-    case descendants:
-      \forall integer ancestor, element, Heap *heap;
-        0 <= ancestor < element < HeapElementsCount(heap) ==>
-          IsDescendant(Parent(element), ancestor, heap) ==> 
-            IsDescendant(element, ancestor, heap);
-  }
-    \end{minted}
-\end{listing}
-
-Predikát zobrazený ve výpisu kódu \ref{acsl:IsDescendantSuccess} obsahuje opravené pořadí argumentů v předpokladu implikace. Korektnosti opravy tohoto predikátu je následně ověřena v původní funkci na obrázku \ref{img:F-C-test-IsDescendantSuccess}. Tento postup napomáhá při hledání konkrétní chyby v definici predikátu nebo funkcí. Při vývoji důkazu binární minimové haldy v této práci byla tato metoda hledání chyby nejčastější.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=10cm]{images/frama-c-test-IsDescendantSuccess}
-	\caption{Úspešné dokončení kontroly platnosti predikátu  IsDescendant v prostředí Frama-C}
-	\label{img:F-C-test-IsDescendantSuccess}
+	\includegraphics[width=10cm]{images/frama-c-test-IsDescendant}
+	\caption{Testování platnosti predikátu IsDescendant v prostředí Frama-C}
+	\label{img:F-C-test-IsDescendant}
 \end{figure}
 
 
 \section{Kontradikce}
 
+V průběhu tvorby důkazu je vhodné jednou za čas vložit do kódu testovací anotaci zobrazenou ve výpisu kódu \ref{acsl:assert-false}. Pokud nastane situace, kdy by verifikační prostředí Frama-C bylo toto tvrzení schopno dokázat, nejspíše byly zavedeny vstupní podmínky funkce, které nelze splnit. Nebo byla chybně napsaná ACSL implikace v kódu před touto kontrolou.  
+
+\begin{listing}[H]
+	\caption{ACSL kontrola kontradikce}
+	\label{acsl:assert-false}
+	\inputminted{c}{code/assert-false.c}
+\end{listing}
 
 
 
@@ -1216,7 +1198,27 @@ Predikát zobrazený ve výpisu kódu \ref{acsl:IsDescendantSuccess} obsahuje op
 
 \section{Dijkstrův algoritmus}
 
-Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkratší cestu mezi dvěma vrcholy ohodnoceného orientovaného grafu. Algoritmus předpokládá nezáporné ohodnocení hran. Algoritmus hledá nejkratší cesty z vrcholu $s$ do všech vrcholů grafu. Algoritmus poté vypisuje pouze hrany z cílového vrcholu. Použitím binární minimové haldy je asymptotická časová složitost tohoto algoritmu $\mathcal{O}(|E|\log(|V|))$.
+Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkratší cestu mezi dvěma vrcholy ohodnoceného orientovaného grafu. Algoritmus předpokládá nezáporné ohodnocení hran. Algoritmus hledá nejkratší cesty z vrcholu $s$ do všech vrcholů grafu. Algoritmus poté vypisuje pouze hrany z cílového vrcholu. Použitím binární minimové haldy je asymptotická časová složitost tohoto algoritmu $\mathcal{O}(|E|\log(|V|))$. \cite{IntroductionToAlgorithms2022}
+
+\begin{algorithm}
+	\caption{An algorithm with caption}\label{alg:cap}
+	\begin{algorithmic}
+		\Require $n \geq 0$
+		\Ensure $y = x^n$
+		\State $y \gets 1$
+		\State $X \gets x$
+		\State $N \gets n$
+		\While{$N \neq 0$}
+		\If{$N$ is even}
+		    \State $X \gets X \times X$
+		    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+		\ElsIf{$N$ is odd}
+		    \State $y \gets y \times X$
+		    \State $N \gets N - 1$
+		\EndIf
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
 
 %---------------------------------------------------------------
 \chapter{Vývojové prostředí}
@@ -1239,7 +1241,7 @@ Docker a kotejnerové technologie umožňují spouštět kontejnery na společn�
 \markboth{Závěr}{Závěr}
 %---------------------------------------------------------------
 
-Tato práce se zaměřila na problematiku formálního důkazu implementace datové struktury binární minimové haldy. Podařilo se implementovat knihovnu v jazyce C s ACSL anotacemi, které dokazují korektnost jednotlivých knihovních funkcí. Použitím této knihovny lze psát nové programy, které bude možné kompletně formálně ověřit, jelikož používají formálně ověřenou knihovnu.
+Tato práce se zaměřila na problematiku formálního důkazu korektnosti implementace datové struktury binární minimové haldy. Podařilo se implementovat knihovnu v jazyce C s ACSL anotacemi, které dokazují korektnost jednotlivých knihovních funkcí. Použitím této knihovny lze psát nové programy, které bude možné kompletně formálně ověřit, jelikož používají formálně ověřenou knihovnu.
 
 Formálně ověřená implementace binární minimové haldy byla použita v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu. Rozšířením této práce by mohl být důkaz korektnosti tohoto algoritmu. Binární halda byla navržena pro ukládání celočíselných hodnot jednotlivých prvků, další modifikace knihovny by mohla obsahovat rozšíření pro možnost uložení desetinných čísel.
 
