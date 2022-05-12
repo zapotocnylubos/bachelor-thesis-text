@@ -85,7 +85,7 @@ zaplněna zleva.
 
 \pagebreak
 
-Obrázek \ref{img:heap-example} zobrazuje ukázku binární minimové haldy. Haldu lze uložit do lineárního pole, kde kořen haldy je uložen na indexu $0$. Haldu z obrázku \ref{img:heap-example} implementovaná pomocí pole je vidět na obrázku \ref{img:heap-example-array}. Průchod haldou lze realizovat následujícími aritmetickými operacemi:
+Obrázek \ref{img:heap-example} zobrazuje ukázku binární minimové haldy. Haldu lze uložit do lineárního pole, kde kořen haldy je uložen na indexu $0$. Halda z obrázku \ref{img:heap-example} implementovaná pomocí pole je vidět na obrázku \ref{img:heap-example-array}. Průchod haldou lze realizovat následujícími aritmetickými operacemi:
 
 \begin{enumerate}
 	\item[] $\Parent(i) = \lfloor (i - 1) / 2 \rfloor$
@@ -132,7 +132,7 @@ Hoareova trojice je způsob popisu chování algoritmu. Tato trojice definuje v�
 
 \textit{Runtime Error Annotation Generation} plugin verifikačního prostředí Frama-C automaticky generuje ACSL anotace pro běžné chyby, které se mohou vyskytnou až při běhu programu. Například dělení nulou, přetečení číselného typu nebo přístup či zápis na nepovolené místo v paměti počítače. \cite{FramaC24RTEManual}
 
-RTE anotace nemusejí být součástí zdrojového kódu, ale mohou být vygenerovány při spuštění grafického prostředí nebo pomocí příkazové řádky za pomocí přepínače \uv{-rte}.
+RTE anotace nemusejí být součástí zdrojového kódu, ale mohou být vygenerovány při spuštění grafického prostředí nebo pomocí příkazové řádky přepínačem \uv{-rte}.
 
 
 \section{Smoke testy}
@@ -1118,7 +1118,7 @@ Důkazní postupy v jazyce ACSL mohou být výrazně odlišené od matematickýc
 
 \section{Zúžení vstupních podmínek}
 
-Při návrhu funkce lze definovat vstupní podmínky, které musejí být splněně, aby mohla být daná funkce volána. Tato podmínka může kontrolovat například hodnoty předávaných parametrů. Pokud by funkce zaručovala platnost nějakého tvrzení při dokončení funkce, může nastat situace, že žádný z důkazních nástrojů nebude schopný danou vlastnost formálně ověřit. Pokud se jedná o chybu v kódu nebo anotaci funkce, lze ji často odhalit zúžením vstupních podmínek.
+Při návrhu funkce lze definovat vstupní podmínky, které musejí být splněné, aby mohla být daná funkce volána. Tato podmínka může kontrolovat například hodnoty předávaných parametrů. Pokud by funkce zaručovala platnost nějakého tvrzení při dokončení funkce, může nastat situace, že žádný z důkazních nástrojů nebude schopný danou vlastnost formálně ověřit. Pokud se jedná o chybu v kódu nebo anotaci funkce, lze ji často odhalit zúžením vstupních podmínek.
 
 Mějme induktivní predikát z výpisu kódu \ref{acsl:IsDescendant}, který tvoří tranzitivní uzávěr vlastnosti být potomkem v~binární minimové haldě. Induktivní predikát obsahuje základní podmínky platnosti a následně induktivně popsanou vlastnost.
 
@@ -1198,27 +1198,40 @@ V průběhu tvorby důkazu je vhodné jednou za čas vložit do kódu testovací
 
 \section{Dijkstrův algoritmus}
 
-Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkratší cestu mezi dvěma vrcholy ohodnoceného orientovaného grafu. Algoritmus předpokládá nezáporné ohodnocení hran. Algoritmus hledá nejkratší cesty z vrcholu $s$ do všech vrcholů grafu. Algoritmus poté vypisuje pouze hrany z cílového vrcholu. Použitím binární minimové haldy je asymptotická časová složitost tohoto algoritmu $\mathcal{O}(|E|\log(|V|))$. \cite{IntroductionToAlgorithms2022}
+Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkratší cestu mezi dvěma vrcholy ohodnoceného orientovaného grafu. Algoritmus předpokládá nezáporné ohodnocení hran. Algoritmus hledá nejkratší cesty z vrcholu $s$ do všech vrcholů grafu. Algoritmus poté vypisuje pouze hrany z cílového vrcholu. Použitím binární minimové haldy lze dosáhnout asymptotické časové složitosti $\mathcal{O}(|E|\log(|V|))$. \cite{IntroductionToAlgorithms2022}
 
-\begin{algorithm}
-	\caption{An algorithm with caption}\label{alg:cap}
+Následující pseudokód algoritmu \ref{alg:dijkstra} zobrazuje Dijkstrův algoritmus pro hledání nejkratší cesty v grafu s~využitím binární minimové haldy. 
+
+\begin{czechalgorithm}[H]
+	\caption{Pseudokód Dijkstrova algoritmu s binární haldou}
+	\label{alg:dijkstra}
 	\begin{algorithmic}
-		\Require $n \geq 0$
-		\Ensure $y = x^n$
-		\State $y \gets 1$
-		\State $X \gets x$
-		\State $N \gets n$
-		\While{$N \neq 0$}
-		\If{$N$ is even}
-		    \State $X \gets X \times X$
-		    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
-		\ElsIf{$N$ is odd}
-		    \State $y \gets y \times X$
-		    \State $N \gets N - 1$
+\Require $G = (V, E), v_0 \in V$
+
+\ForAll{$v \in V$}
+	\State $\Value(v) \gets +\infty$
+	\State $\Predecessor(v) \gets \bot$
+\EndFor
+
+\State $\Value(v_0) \gets 0$ \Comment{Vzdálenost počáteční vrcholu od počátečního vrcholu}
+\State $H \gets HeapBuild(V)$
+
+\While{$H$ is not empty}
+    \State $v \gets \HeapFindMin(H)$
+    \State $H \gets \HeapExtractMin(H)$
+    
+    \ForAll{$w \in N_G(v)$} \Comment{Pro všechny sousedící vrcholy $w$ vrcholu $v$}
+	    \If{$w \in H \land \Value(w) > \Value(v) + \Weight((v, w))$}
+			\State $\Value(w) \gets \Value(v) + \Weight((v, w))$
+			\State $\Predecessor(w) \gets v$
+			\State $\HeapChange(H, \Index(w), w)$
 		\EndIf
-		\EndWhile
+	\EndFor
+\EndWhile
 	\end{algorithmic}
-\end{algorithm}
+\end{czechalgorithm}
+
+Dijkstrův algoritmus byl implementován s použitím plně verifikované knihovny binární minimové haldy. Ale již nebyl verifikován pro korektnost. Kompletní zdrojový kód implementace Dijkstrova algoritmu se nachází na přiloženém médiu v souboru \uv{shortest\_path.c}.
 
 %---------------------------------------------------------------
 \chapter{Vývojové prostředí}
@@ -1227,13 +1240,17 @@ Dijkstrův algoritmu je grafový algoritmus pomocí kterého lze nalézt nejkrat
 
 \section{Docker}
 
-Docker a kotejnerové technologie umožňují spouštět kontejnery na společném jádře operačního systému. Liší se tímto od tradičních virtuálních strojů, které virtualizují jádro daného operačního systémů. Spuštěný kontejner se pomocí ... \cite{LinuxBible2020}
+Docker a kotejnerové technologie umožňují spouštět kontejnery na společném jádře operačního systému. Liší se tímto od tradičních virtuálních strojů, které virtualizují jádro daného operačního systémů. \cite{LinuxBible2020}
 
-\subsection{Reverzní proxy}
+V rámci práce vznikl konfigurační soubor pro Docker, který umožňuje vývojáři editovat kód, psát ACSL anotace a spouštět formální verifikaci v grafickém prostředí Frama-C pomocí webového prohlížeče. Vývojové prostředí obsahuje reverzní proxy, která zajišťuje HTTPS komunikaci a jednotný přístup k editoru kódu a~grafickému prostředí Frama-C pomocí webového prohlížeče. Pro správné použití této reverzní proxy je nutné nastavení lokálního překladu doménových jmen, například v souboru \uv{/etc/hosts} na Linuxu, nebo nastavení DNS serveru. Domény, které je potřeba nastavit jsou:
 
-\subsection{Editor kódu}
+\begin{enumerate}
+  \item vscode.local
+  \item frama-c.local
+\end{enumerate}
 
-\subsection{Verifikační prostředí}
+Editor kódu generuje při prvním vytvoření přístupové heslo do souboru \uv{config.yaml} v~automaticky vytvořeném adresáři \uv{./config/code-server}. Grafické prostředí Frama-C je přístupné pomocí technologie pro vzdálenou plochu VNC.
+
 
 %---------------------------------------------------------------
 \chapter*{Závěr}
@@ -1243,6 +1260,6 @@ Docker a kotejnerové technologie umožňují spouštět kontejnery na společn�
 
 Tato práce se zaměřila na problematiku formálního důkazu korektnosti implementace datové struktury binární minimové haldy. Podařilo se implementovat knihovnu v jazyce C s ACSL anotacemi, které dokazují korektnost jednotlivých knihovních funkcí. Použitím této knihovny lze psát nové programy, které bude možné kompletně formálně ověřit, jelikož používají formálně ověřenou knihovnu.
 
-Formálně ověřená implementace binární minimové haldy byla použita v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu. Rozšířením této práce by mohl být důkaz korektnosti tohoto algoritmu. Binární halda byla navržena pro ukládání celočíselných hodnot jednotlivých prvků, další modifikace knihovny by mohla obsahovat rozšíření pro možnost uložení desetinných čísel.
+Formálně ověřená implementace binární minimové haldy byla použita v Dijkstrově algoritmu pro hledání nejkratší cesty v grafu. Rozšířením této práce by mohl být důkaz korektnosti tohoto algoritmu. Binární halda byla navržena pro ukládání celočíselných hodnot jednotlivých prvků. Další modifikace knihovny by mohla obsahovat rozšíření pro možnost uložení desetinných čísel.
 
-Součástí práce také vzniklo univerzální vývojové prostředí s možností editace kódu a spouštění formálního ověření bez nutnosti instalace jednotlivých programů přímo do operačního systému. Toto vývojové prostředí lze spustit na vzdáleném počítači (serveru) a následně editaci kódu a spouštění verifikace programů provádět pomocí webového prohlížeče vzdáleně.
+Součástí práce také vzniklo univerzální vývojové prostředí s možností editace kódu a spouštění formálního ověření bez nutnosti instalace jednotlivých programů přímo do operačního systému. Toto vývojové prostředí lze spustit na vzdáleném počítači (serveru) a následně editaci kódu a~spouštění verifikace programů provádět pomocí webového prohlížeče vzdáleně.
